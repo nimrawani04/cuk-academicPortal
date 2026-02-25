@@ -9,199 +9,175 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'student' | 'teacher' | ''>('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+      if (error) throw error;
 
-    if (error) {
+      if (data.user) {
+        toast({
+          title: 'Welcome back!',
+          description: 'Successfully signed in.',
+        });
+        navigate('/');
+      }
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message,
         variant: 'destructive',
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    toast({
-      title: 'Success',
-      description: 'Signed in successfully',
-    });
-    navigate('/');
   };
 
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const fullName = formData.get('fullName') as string;
 
     if (!role) {
       toast({
-        title: 'Error',
-        description: 'Please select role',
+        title: 'Role required',
+        description: 'Please select a role.',
         variant: 'destructive',
       });
-      setLoading(false);
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
+    setLoading(true);
 
-    if (error) {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: data.user.id, role });
+
+        if (roleError) throw roleError;
+
+        toast({
+          title: 'Account created!',
+          description: 'Please check your email for verification.',
+        });
+
+        navigate('/');
+      }
+    } catch (error: any) {
       toast({
         title: 'Error',
         description: error.message,
         variant: 'destructive',
       });
+    } finally {
       setLoading(false);
-      return;
     }
-
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
-          phone: null,
-          department: null,
-          enrollment_number: null,
-          employee_id: null,
-        })
-        .eq('user_id', data.user.id);
-
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role,
-        });
-
-      if (profileError || roleError) {
-        toast({
-          title: 'Error',
-          description: 'Failed to complete registration',
-          variant: 'destructive',
-        });
-        setLoading(false);
-        return;
-      }
-
-      toast({
-        title: 'Success',
-        description: 'Account created successfully',
-      });
-      navigate('/');
-      return;
-    }
-
-    setLoading(false);
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-[#eff1f5]">
-      <div className="grid h-full lg:grid-cols-[2.2fr_1fr]">
-        <section className="relative hidden lg:block">
-          <img src="/cuk.png" alt="Central University of Kashmir" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-slate-900/35" />
-          <div className="absolute bottom-10 left-8 text-white">
-            <h1 className="text-3xl font-semibold tracking-tight">CUK Academic Portal</h1>
-            <p className="mt-2 text-[20px] font-light tracking-tight">A smarter way to manage campus academics.</p>
+    <div className="min-h-screen bg-[#efeff1] lg:h-screen lg:overflow-hidden">
+      <div className="grid min-h-screen lg:h-full lg:grid-cols-[2fr_1fr]">
+        <section className="relative hidden lg:block lg:h-full">
+          <img
+            src="/cuk.png"
+            alt="Central University of Kashmir campus"
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+          <div className="absolute bottom-10 left-8 max-w-xl text-white">
+            <h2 className="text-3xl font-medium leading-tight tracking-wide">CUK Academic Portal</h2>
+            <p className="mt-2 text-xl text-white/90">A smarter way to manage campus academics.</p>
           </div>
         </section>
 
-        <section className="flex h-full items-center justify-center px-4 py-2 lg:px-6 lg:py-2">
-          <div className="w-full max-w-[520px] rounded-2xl bg-transparent">
-            <div className="text-center">
-              <img src="/favicon.ico" alt="CUK logo" className="mx-auto h-14 w-14 object-contain" />
-              <h2 className="mt-2 text-[34px] font-semibold tracking-tight text-slate-900">Academic Management Portal</h2>
-              <p className="mt-0.5 text-[15px] text-slate-600">Sign into your account</p>
+        <section className="flex h-full items-center justify-center px-6 py-4 sm:px-10 lg:px-12">
+          <div className="flex w-full max-w-md flex-col justify-center">
+            <div className="mb-5 text-center">
+              <img src="/favicon.ico" alt="CUK logo" className="mx-auto h-12 w-12 rounded-md object-contain" />
+              <h1 className="mt-3 text-2xl font-semibold text-slate-900">Academic Management Portal</h1>
+              <p className="mt-1 text-base text-slate-600">Sign into your account</p>
             </div>
 
-            <Tabs defaultValue="signin" className="mt-3 w-full">
-              <TabsList className="grid h-10 w-full grid-cols-2 rounded-md bg-[#e8edf5] p-1">
-                <TabsTrigger
-                  value="signin"
-                  className="h-full rounded-sm text-[16px] font-semibold text-slate-600 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm"
-                >
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger
-                  value="signup"
-                  className="h-full rounded-sm text-[16px] font-semibold text-slate-600 data-[state=active]:border data-[state=active]:border-[#1d4fb8] data-[state=active]:bg-white data-[state=active]:text-slate-900"
-                >
-                  Sign Up
-                </TabsTrigger>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="mb-4 grid w-full grid-cols-2 bg-slate-100">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="signin" className="mt-3">
-                <form onSubmit={handleSignIn} className="space-y-2.5">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signin-email" className="text-[14px] uppercase text-slate-800">
+              <TabsContent value="signin" className="mt-0">
+                <form onSubmit={handleSignIn} className="space-y-3.5">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="signin-email"
+                      className="text-xs font-semibold uppercase tracking-wide text-slate-700"
+                    >
                       Login
                     </Label>
                     <Input
                       id="signin-email"
-                      name="email"
                       type="email"
                       placeholder="User Name / Email"
-                      className="h-9 rounded-md border-slate-300 bg-white text-[14px] placeholder:text-slate-500"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="h-11 border-slate-300"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signin-password" className="text-[14px] uppercase text-slate-800">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="signin-password"
+                      className="text-xs font-semibold uppercase tracking-wide text-slate-700"
+                    >
                       Password
                     </Label>
                     <Input
                       id="signin-password"
-                      name="password"
                       type="password"
                       placeholder="Credentials"
-                      className="h-9 rounded-md border-slate-300 bg-white text-[14px] placeholder:text-slate-500"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
+                      className="h-11 border-slate-300"
                     />
                   </div>
-
-                  <div className="flex items-center justify-between gap-2 text-[14px] text-slate-700">
-                    <label htmlFor="keep-signed-in" className="flex items-center gap-2">
-                      <input id="keep-signed-in" type="checkbox" className="h-4 w-4 rounded border-slate-400" />
-                      <span>Keep me signed in</span>
+                  <div className="flex items-center justify-between gap-4 text-sm">
+                    <label htmlFor="remember-me" className="flex items-center gap-2 text-slate-700">
+                      <input id="remember-me" type="checkbox" className="h-4 w-4 rounded border-slate-300" />
+                      Keep me signed in
                     </label>
-                    <a href="#" className="text-[#1d4fb8] hover:underline">
+                    <button type="button" className="text-primary hover:underline">
                       Forgot Password?
-                    </a>
+                    </button>
                   </div>
-
                   <Button
                     type="submit"
-                    className="h-9 w-full rounded-md bg-[#7162bd] text-[16px] font-semibold hover:bg-[#6255aa]"
+                    className="h-11 w-full bg-[#6f5eb3] text-white hover:bg-[#5f4ea4]"
                     disabled={loading}
                   >
                     {loading ? 'Signing in...' : 'Sign In'}
@@ -209,57 +185,49 @@ const Auth = () => {
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup" className="mt-3">
-                <form onSubmit={handleSignUp} className="space-y-2.5">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signup-fullName" className="text-[14px] text-slate-900">
-                      Full Name
-                    </Label>
+              <TabsContent value="signup" className="mt-0">
+                <form onSubmit={handleSignUp} className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullname">Full Name</Label>
                     <Input
-                      id="signup-fullName"
-                      name="fullName"
+                      id="fullname"
                       type="text"
                       placeholder="Enter your name"
-                      className="h-9 rounded-md border-slate-300 bg-white text-[14px] placeholder:text-slate-500"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                       required
+                      className="h-10"
                     />
                   </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signup-email" className="text-[14px] text-slate-900">
-                      Email
-                    </Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
                       id="signup-email"
-                      name="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="h-9 rounded-md border-slate-300 bg-white text-[14px] placeholder:text-slate-500"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
+                      className="h-10"
                     />
                   </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signup-password" className="text-[14px] text-slate-900">
-                      Password
-                    </Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
                     <Input
                       id="signup-password"
-                      name="password"
                       type="password"
                       placeholder="Create a password"
-                      className="h-9 rounded-md border-slate-300 bg-white text-[14px] placeholder:text-slate-500"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
+                      className="h-10"
                     />
                   </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="role" className="text-[14px] text-slate-900">
-                      Role
-                    </Label>
+                  <div className="space-y-2">
+                    <Label>Role</Label>
                     <Select value={role} onValueChange={(value) => setRole(value as 'student' | 'teacher')}>
-                      <SelectTrigger id="role" className="h-9 rounded-md border-slate-300 bg-white text-[14px]">
+                      <SelectTrigger className="h-10">
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -268,20 +236,15 @@ const Auth = () => {
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <Button
-                    type="submit"
-                    className="h-9 w-full rounded-md bg-[#184cae] text-[16px] font-semibold hover:bg-[#153f92]"
-                    disabled={loading}
-                  >
+                  <Button type="submit" className="mt-8 h-10 w-full" disabled={loading}>
                     {loading ? 'Creating account...' : 'Create Account'}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
 
-            <div className="mt-3 flex items-center gap-2 text-[12px] text-slate-500">
-              <img src="/favicon.ico" alt="CUK emblem" className="h-5 w-5 object-contain" />
+            <div className="mt-5 flex items-center gap-3 text-xs text-slate-500">
+              <img src="/favicon.ico" alt="" className="h-7 w-7 opacity-40" />
               <p>© 2026 Central University of Kashmir. All rights reserved.</p>
             </div>
           </div>

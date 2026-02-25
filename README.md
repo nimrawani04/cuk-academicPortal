@@ -2,8 +2,7 @@
 
 A full-stack academic management system built using **TypeScript, React, Node.js, Express, PostgreSQL, and CSS** following the **MVC architecture pattern**.
 
-🔗 Repository:  
-https://github.com/nimrawani04/cukAcademicManagementPortal
+
 
 ---
 

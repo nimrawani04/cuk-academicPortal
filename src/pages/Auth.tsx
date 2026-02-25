@@ -68,6 +68,7 @@ const Auth = () => {
         options: {
           data: {
             full_name: fullName,
+            role,
           },
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -76,12 +77,6 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
-        const { error: roleError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: data.user.id, role });
-
-        if (roleError) throw roleError;
-
         toast({
           title: 'Account created!',
           description: 'Please check your email for verification.',

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Moon, Sun } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -14,8 +15,20 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'student' | 'teacher' | ''>('');
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('auth_theme') === 'dark');
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+      localStorage.setItem('auth_theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      localStorage.setItem('auth_theme', 'light');
+    }
+  }, [darkMode]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +109,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#efeff1] lg:h-screen lg:overflow-hidden">
+    <div className={darkMode ? 'min-h-screen bg-[#1f2430] lg:h-screen lg:overflow-hidden' : 'min-h-screen bg-[#efeff1] lg:h-screen lg:overflow-hidden'}>
       <div className="grid min-h-screen lg:h-full lg:grid-cols-[2fr_1fr]">
         <section className="relative hidden lg:block lg:h-full">
           <img
@@ -111,16 +124,24 @@ const Auth = () => {
           </div>
         </section>
 
-        <section className="flex h-full items-center justify-center px-6 py-4 sm:px-10 lg:px-12">
+        <section className="relative flex h-full items-center justify-center px-6 py-4 sm:px-10 lg:px-12">
+          <button
+            onClick={() => setDarkMode((prev) => !prev)}
+            className={darkMode ? 'absolute right-6 top-6 z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-600 bg-[#2b3140] text-slate-200' : 'absolute right-6 top-6 z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700'}
+            aria-label="Toggle theme"
+          >
+            {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
           <div className="flex w-full max-w-md flex-col justify-center">
             <div className="mb-5 text-center">
               <img src="/favicon.ico" alt="CUK logo" className="mx-auto h-12 w-12 rounded-md object-contain" />
-              <h1 className="mt-3 text-2xl font-semibold text-slate-900">Academic Management Portal</h1>
-              <p className="mt-1 text-base text-slate-600">Sign into your account</p>
+              <h1 className={darkMode ? 'mt-3 text-2xl font-semibold text-slate-100' : 'mt-3 text-2xl font-semibold text-slate-900'}>Academic Management Portal</h1>
+              <p className={darkMode ? 'mt-1 text-base text-slate-300' : 'mt-1 text-base text-slate-600'}>Sign into your account</p>
             </div>
 
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="mb-4 grid w-full grid-cols-2 bg-slate-100">
+              <TabsList className={darkMode ? 'mb-4 grid w-full grid-cols-2 bg-slate-800' : 'mb-4 grid w-full grid-cols-2 bg-slate-100'}>
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
@@ -141,7 +162,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11 border-slate-300"
+                      className={darkMode ? 'h-11 border-slate-600 bg-slate-800 text-slate-100' : 'h-11 border-slate-300'}
                     />
                   </div>
                   <div className="space-y-2">
@@ -158,14 +179,10 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11 border-slate-300"
+                      className={darkMode ? 'h-11 border-slate-600 bg-slate-800 text-slate-100' : 'h-11 border-slate-300'}
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-4 text-sm">
-                    <label htmlFor="remember-me" className="flex items-center gap-2 text-slate-700">
-                      <input id="remember-me" type="checkbox" className="h-4 w-4 rounded border-slate-300" />
-                      Keep me signed in
-                    </label>
+                  <div className="flex items-center justify-end gap-4 text-sm">
                     <button type="button" className="text-primary hover:underline">
                       Forgot Password?
                     </button>
@@ -191,7 +208,7 @@ const Auth = () => {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="h-10"
+                      className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}
                     />
                   </div>
                   <div className="space-y-2">
@@ -203,7 +220,7 @@ const Auth = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-10"
+                      className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}
                     />
                   </div>
                   <div className="space-y-2">
@@ -216,13 +233,13 @@ const Auth = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-10"
+                      className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Role</Label>
                     <Select value={role} onValueChange={(value) => setRole(value as 'student' | 'teacher')}>
-                      <SelectTrigger className="h-10">
+                      <SelectTrigger className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
@@ -238,7 +255,7 @@ const Auth = () => {
               </TabsContent>
             </Tabs>
 
-            <div className="mt-5 flex items-center gap-3 text-xs text-slate-500">
+            <div className={darkMode ? 'mt-5 flex items-center gap-3 text-xs text-slate-400' : 'mt-5 flex items-center gap-3 text-xs text-slate-500'}>
               <img src="/favicon.ico" alt="" className="h-7 w-7 opacity-40" />
               <p>© 2026 Central University of Kashmir. All rights reserved.</p>
             </div>

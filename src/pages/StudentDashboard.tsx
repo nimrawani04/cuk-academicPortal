@@ -32,6 +32,7 @@ import { useResources } from '@/hooks/useResources';
 import { useLibraryBooks, useStudentBookIssues } from '@/hooks/useLibrary';
 import { useCreateLeaveApplication, useStudentLeaveApplications } from '@/hooks/useLeaveApplications';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { PerformanceCharts } from '@/components/student/PerformanceCharts';
 
 const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();
@@ -318,18 +319,11 @@ const StudentDashboard = () => {
     }
 
     if (activeItem === 'performance') {
-      return sectionShell(
-        'Performance Overview',
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-slate-200 px-4 py-4">
-            <p className="text-sm text-slate-500">Average Marks</p>
-            <p className="text-3xl font-semibold">{averageMarks}</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 px-4 py-4">
-            <p className="text-sm text-slate-500">Attendance Rate</p>
-            <p className="text-3xl font-semibold">{attendanceRate}</p>
-          </div>
-        </div>
+      return (
+        <section>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Performance Overview</h2>
+          <PerformanceCharts marks={marks as any} attendance={attendance as any} />
+        </section>
       );
     }
 

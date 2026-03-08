@@ -302,6 +302,66 @@ export type Database = {
           },
         ]
       }
+      exams: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_time: string | null
+          exam_date: string
+          exam_type: string
+          id: string
+          notes: string | null
+          room: string | null
+          start_time: string | null
+          subject_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          exam_date: string
+          exam_type?: string
+          id?: string
+          notes?: string | null
+          room?: string | null
+          start_time?: string | null
+          subject_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_time?: string | null
+          exam_date?: string
+          exam_type?: string
+          id?: string
+          notes?: string | null
+          room?: string | null
+          start_time?: string | null
+          subject_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exams_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "exams_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leave_applications: {
         Row: {
           contact_info: string | null

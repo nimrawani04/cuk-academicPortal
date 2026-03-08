@@ -77,6 +77,7 @@ export const DashboardLayout = ({
             darkMode={darkMode}
             onToggleTheme={() => setDarkMode((prev) => !prev)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
+            onNavigate={onNavigate}
           />
 
           <div className="px-5 py-6 lg:px-8 lg:py-8">{children}</div>

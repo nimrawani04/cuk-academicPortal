@@ -161,9 +161,9 @@ export const Header = ({
                         <DropdownMenuItem
                           key={exam.id}
                           className={`flex items-start gap-3 px-4 py-2.5 cursor-pointer ${read ? 'opacity-60' : ''}`}
-                          onSelect={(e) => {
-                            e.preventDefault();
+                          onSelect={() => {
                             if (!read) markAsRead.mutate({ type: 'exam', id: exam.id });
+                            onNavigate?.('exams');
                           }}
                         >
                           {!read ? (

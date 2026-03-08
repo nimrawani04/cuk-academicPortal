@@ -199,22 +199,6 @@ const StudentDashboard = () => {
     );
   };
 
-  const handleProfileSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfile.mutate(
-      {
-        full_name: profileForm.fullName || null,
-        department: profileForm.department || null,
-        phone: profileForm.phone || null,
-        avatar_url: profileForm.avatarUrl || null,
-      },
-      {
-        onSuccess: () => toast({ title: 'Profile updated', description: 'Your profile changes are saved.' }),
-        onError: (err: any) =>
-          toast({ title: 'Profile update failed', description: err?.message || 'Please try again.', variant: 'destructive' }),
-      }
-    );
-  };
 
   const renderOverview = () => (
     <>

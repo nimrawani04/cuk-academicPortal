@@ -47,12 +47,6 @@ const StudentDashboard = () => {
     reason: '',
     contactInfo: '',
   });
-  const [profileForm, setProfileForm] = useState({
-    fullName: '',
-    department: '',
-    phone: '',
-    avatarUrl: '',
-  });
 
   const { data: notices = [] } = useNotices();
   const { data: enrollments = [] } = useStudentEnrollments();

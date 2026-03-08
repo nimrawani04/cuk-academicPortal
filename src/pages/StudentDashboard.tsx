@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Bell,
   BookOpen,

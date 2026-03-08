@@ -20,6 +20,7 @@ import { TeacherAttendance } from '@/components/teacher/TeacherAttendance';
 import { TeacherAssignments } from '@/components/teacher/TeacherAssignments';
 import { TeacherResources } from '@/components/teacher/TeacherResources';
 import { TeacherLeave } from '@/components/teacher/TeacherLeave';
+import { TeacherExams } from '@/components/teacher/TeacherExams';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 import { BulkUpload } from '@/components/teacher/BulkUpload';
 
@@ -44,6 +45,7 @@ const TeacherDashboard = () => {
       { id: 'attendance', label: 'Attendance', icon: UserCheck, section: 'Management', onClick: () => setActiveItem('attendance') },
       { id: 'assignments', label: 'Assignments', icon: BookOpen, section: 'Management', onClick: () => setActiveItem('assignments') },
       { id: 'resources', label: 'Resources', icon: FolderOpen, section: 'Academic', onClick: () => setActiveItem('resources') },
+      { id: 'exams', label: 'Exams', icon: Calendar, section: 'Academic', onClick: () => setActiveItem('exams') },
       { id: 'leave', label: 'Leave', icon: Calendar, section: 'Academic', onClick: () => setActiveItem('leave') },
       { id: 'bulk-upload', label: 'Bulk Upload', icon: Upload, section: 'Academic', onClick: () => setActiveItem('bulk-upload') },
     ],
@@ -70,6 +72,8 @@ const TeacherDashboard = () => {
         return <TeacherAssignments />;
       case 'resources':
         return <TeacherResources />;
+      case 'exams':
+        return <TeacherExams />;
       case 'leave':
         return <TeacherLeave />;
       case 'bulk-upload':

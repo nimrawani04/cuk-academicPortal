@@ -32,6 +32,7 @@ import { useResources } from '@/hooks/useResources';
 import { useLibraryBooks, useStudentBookIssues } from '@/hooks/useLibrary';
 import { useCreateLeaveApplication, useStudentLeaveApplications } from '@/hooks/useLeaveApplications';
 import { useProfile } from '@/hooks/useProfile';
+import { useUpcomingExams } from '@/hooks/useExams';
 import { PerformanceCharts } from '@/components/student/PerformanceCharts';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 
@@ -59,6 +60,7 @@ const StudentDashboard = () => {
   const { data: issues = [] } = useStudentBookIssues();
   const { data: leaves = [] } = useStudentLeaveApplications();
   const { data: profile } = useProfile();
+  const { data: upcomingExams = [] } = useUpcomingExams();
 
   const submitAssignment = useSubmitAssignment();
   const createLeave = useCreateLeaveApplication();
@@ -253,15 +255,65 @@ const StudentDashboard = () => {
 
     if (activeItem === 'exams') {
       return sectionShell(
-        'Exams & Upcoming Assessments',
-        upcomingDeadlines.length ? (
-          <ul className="space-y-2">
-            {upcomingDeadlines.map((d) => (
-              <li key={d} className="rounded-lg border border-slate-200 px-4 py-3 text-sm text-slate-700">{d}</li>
-            ))}
-          </ul>
+        'Exam Schedule',
+        upcomingExams.length ? (
+          <div className="space-y-3">
+            {upcomingExams.map((exam: any) => {
+              const examDate = new Date(exam.exam_date);
+              const isPast = examDate < new Date(new Date().toDateString());
+              const isToday = exam.exam_date === new Date().toISOString().split('T')[0];
+              return (
+                <div
+                  key={exam.id}
+                  className={`rounded-xl border px-5 py-4 transition-colors ${
+                    isToday
+                      ? 'border-primary/40 bg-primary/5'
+                      : isPast
+                      ? 'border-slate-100 bg-slate-50 opacity-60'
+                      : 'border-slate-200 bg-white'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-[16px] font-semibold text-foreground">{exam.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {exam.subjects?.name || 'N/A'} · {exam.subjects?.code || ''}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                        exam.exam_type === 'final'
+                          ? 'bg-red-100 text-red-700'
+                          : exam.exam_type === 'midterm'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {exam.exam_type.charAt(0).toUpperCase() + exam.exam_type.slice(1)}
+                    </span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {examDate.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                      {isToday && <span className="ml-1 text-xs font-bold text-primary">TODAY</span>}
+                    </span>
+                    {(exam.start_time || exam.end_time) && (
+                      <span>
+                        🕐 {exam.start_time?.slice(0, 5) || '?'} – {exam.end_time?.slice(0, 5) || '?'}
+                      </span>
+                    )}
+                    {exam.room && <span>📍 {exam.room}</span>}
+                  </div>
+                  {exam.notes && (
+                    <p className="mt-2 text-xs text-muted-foreground italic">{exam.notes}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          <p className="text-sm text-slate-500">No upcoming exams or deadlines.</p>
+          <p className="text-sm text-muted-foreground">No upcoming exams scheduled.</p>
         )
       );
     }

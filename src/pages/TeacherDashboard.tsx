@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import {
   Bell,
   BookOpen,

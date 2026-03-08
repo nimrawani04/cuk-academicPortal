@@ -1,4 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import {
   Bell,
   BookOpen,
@@ -39,6 +40,7 @@ import { ProfileEditor } from '@/components/profile/ProfileEditor';
 const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
+  useRealtimeNotifications();
   const [activeItem, setActiveItem] = useState('notices');
   const [submissionUrlByAssignment, setSubmissionUrlByAssignment] = useState<Record<string, string>>({});
   const [leaveForm, setLeaveForm] = useState({

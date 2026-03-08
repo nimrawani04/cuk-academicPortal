@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import {
   Bell,
   BookOpen,
@@ -27,6 +28,7 @@ import { BulkUpload } from '@/components/teacher/BulkUpload';
 const TeacherDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const { data: profile } = useProfile();
+  useRealtimeNotifications();
   const [activeItem, setActiveItem] = useState('notices');
 
   const displayName = useMemo(() => {

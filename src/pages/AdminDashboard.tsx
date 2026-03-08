@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import {
   BookOpen,
   LayoutDashboard,
@@ -20,6 +21,7 @@ import { ProfileEditor } from '@/components/profile/ProfileEditor';
 const AdminDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const { data: profile } = useProfile();
+  useRealtimeNotifications();
   const [activeItem, setActiveItem] = useState('overview');
 
   const displayName = useMemo(() => {

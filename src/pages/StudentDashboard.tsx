@@ -270,14 +270,33 @@ const StudentDashboard = () => {
       return sectionShell(
         'My Marks',
         marks.length ? (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {marks.map((m: any) => (
-              <div key={m.id} className="rounded-lg border border-slate-200 px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold">{m.subjects?.name || 'Subject'}</p>
-                  <p className="text-sm font-semibold text-[#245ed4]">Grade {m.grade || '-'}</p>
+              <div key={m.id} className="rounded-xl border border-slate-200 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[16px] font-semibold">{m.subjects?.name || 'Subject'}</p>
+                  <span className="rounded-full bg-[#e6efff] px-3 py-0.5 text-sm font-bold text-[#245ed4]">
+                    {m.grade || '-'}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-500">Total: {m.total_marks ?? 0}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  {[
+                    { label: 'Test I', value: m.test1_marks, max: 20 },
+                    { label: 'Test II', value: m.test2_marks, max: 20 },
+                    { label: 'Presentation', value: m.presentation_marks, max: 20 },
+                    { label: 'Assignment', value: m.assignment_marks, max: 20 },
+                    { label: 'Attendance', value: m.attendance_marks, max: 5 },
+                    { label: 'Total', value: m.total_marks, max: 100 },
+                  ].map((item) => (
+                    <div key={item.label} className={`rounded-lg p-2.5 text-center ${item.label === 'Total' ? 'bg-[#245ed4]/10' : 'bg-slate-50'}`}>
+                      <p className="text-xs text-slate-500 mb-0.5">{item.label}</p>
+                      <p className={`text-lg font-bold ${item.label === 'Total' ? 'text-[#245ed4]' : 'text-slate-800'}`}>
+                        {item.value ?? '-'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">/ {item.max}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>

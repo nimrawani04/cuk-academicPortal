@@ -118,6 +118,42 @@ export function useDeleteSubject() {
   });
 }
 
+export function useCreateSubjectAdmin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (subject: { code: string; name: string; department: string; semester: number; credits: number; teacher_id?: string | null }) => {
+      const { error } = await supabase.from('subjects').insert(subject);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-subjects'] }),
+  });
+}
+
+export function useUpdateSubjectAdmin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; code?: string; name?: string; department?: string; semester?: number; credits?: number; teacher_id?: string | null }) => {
+      const { error } = await supabase.from('subjects').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-subjects'] }),
+  });
+}
+
+export function useTeachersList() {
+  return useQuery({
+    queryKey: ['admin-teachers-list'],
+    queryFn: async () => {
+      const { data: teacherRoles } = await supabase.from('user_roles').select('user_id').eq('role', 'teacher');
+      if (!teacherRoles?.length) return [];
+      const ids = teacherRoles.map((r) => r.user_id);
+      const { data, error } = await supabase.from('profiles').select('user_id, full_name').in('user_id', ids).order('full_name');
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
 export function useSystemStats() {
   return useQuery({
     queryKey: ['admin-stats'],

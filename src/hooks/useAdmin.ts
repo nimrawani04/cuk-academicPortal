@@ -107,6 +107,17 @@ export function useDeleteClass() {
   });
 }
 
+export function useUpdateClass() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; name?: string; department?: string; semester?: number }) => {
+      const { error } = await supabase.from('classes').update(updates).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
+  });
+}
+
 export function useDeleteSubject() {
   const qc = useQueryClient();
   return useMutation({

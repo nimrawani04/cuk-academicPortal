@@ -24,6 +24,7 @@ type HeaderProps = {
   onToggleTheme: () => void;
   darkMode: boolean;
   onOpenShortcuts: () => void;
+  onNavigate?: (section: string) => void;
 };
 
 export const Header = ({

@@ -36,17 +36,19 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview"><LayoutDashboard className="h-4 w-4 mr-2" />Overview</TabsTrigger>
             <TabsTrigger value="users"><Users className="h-4 w-4 mr-2" />Users</TabsTrigger>
             <TabsTrigger value="subjects"><BookOpen className="h-4 w-4 mr-2" />Subjects</TabsTrigger>
             <TabsTrigger value="classes"><School className="h-4 w-4 mr-2" />Classes</TabsTrigger>
+            <TabsTrigger value="profile"><User className="h-4 w-4 mr-2" />Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6"><AdminOverview /></TabsContent>
           <TabsContent value="users" className="mt-6"><AdminUsers /></TabsContent>
           <TabsContent value="subjects" className="mt-6"><AdminSubjects /></TabsContent>
           <TabsContent value="classes" className="mt-6"><AdminClasses /></TabsContent>
+          <TabsContent value="profile" className="mt-6"><ProfileEditor /></TabsContent>
         </Tabs>
       </div>
     </div>

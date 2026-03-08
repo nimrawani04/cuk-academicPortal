@@ -204,7 +204,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="flex items-center justify-end gap-4 text-sm">
-                    <button type="button" className="text-primary hover:underline">
+                    <button type="button" onClick={() => setShowForgot(true)} className="text-primary hover:underline">
                       Forgot Password?
                     </button>
                   </div>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Bell,
   BookOpen,
@@ -31,8 +31,9 @@ import { useStudentAttendance } from '@/hooks/useAttendance';
 import { useResources } from '@/hooks/useResources';
 import { useLibraryBooks, useStudentBookIssues } from '@/hooks/useLibrary';
 import { useCreateLeaveApplication, useStudentLeaveApplications } from '@/hooks/useLeaveApplications';
-import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { useProfile } from '@/hooks/useProfile';
 import { PerformanceCharts } from '@/components/student/PerformanceCharts';
+import { ProfileEditor } from '@/components/profile/ProfileEditor';
 
 const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();
@@ -45,12 +46,6 @@ const StudentDashboard = () => {
     toDate: '',
     reason: '',
     contactInfo: '',
-  });
-  const [profileForm, setProfileForm] = useState({
-    fullName: '',
-    department: '',
-    phone: '',
-    avatarUrl: '',
   });
 
   const { data: notices = [] } = useNotices();
@@ -67,18 +62,8 @@ const StudentDashboard = () => {
 
   const submitAssignment = useSubmitAssignment();
   const createLeave = useCreateLeaveApplication();
-  const updateProfile = useUpdateProfile();
+  
 
-  useEffect(() => {
-    if (profile) {
-      setProfileForm({
-        fullName: profile.full_name || '',
-        department: profile.department || '',
-        phone: profile.phone || '',
-        avatarUrl: profile.avatar_url || '',
-      });
-    }
-  }, [profile]);
 
   const displayName = useMemo(() => {
     const prefix = (profile?.full_name?.trim() || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student') as string;
@@ -214,22 +199,6 @@ const StudentDashboard = () => {
     );
   };
 
-  const handleProfileSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfile.mutate(
-      {
-        full_name: profileForm.fullName || null,
-        department: profileForm.department || null,
-        phone: profileForm.phone || null,
-        avatar_url: profileForm.avatarUrl || null,
-      },
-      {
-        onSuccess: () => toast({ title: 'Profile updated', description: 'Your profile changes are saved.' }),
-        onError: (err: any) =>
-          toast({ title: 'Profile update failed', description: err?.message || 'Please try again.', variant: 'destructive' }),
-      }
-    );
-  };
 
   const renderOverview = () => (
     <>
@@ -475,38 +444,11 @@ const StudentDashboard = () => {
     }
 
     if (activeItem === 'profile') {
-      return sectionShell(
-        'Profile Management',
-        <form onSubmit={handleProfileSave} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Full Name</Label>
-              <Input value={profileForm.fullName} onChange={(e) => setProfileForm((p) => ({ ...p, fullName: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Email</Label>
-              <Input value={profile?.email || user?.email || ''} disabled />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Department</Label>
-              <Input value={profileForm.department} onChange={(e) => setProfileForm((p) => ({ ...p, department: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Phone</Label>
-              <Input value={profileForm.phone} onChange={(e) => setProfileForm((p) => ({ ...p, phone: e.target.value }))} />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Avatar URL</Label>
-            <Input value={profileForm.avatarUrl} onChange={(e) => setProfileForm((p) => ({ ...p, avatarUrl: e.target.value }))} />
-          </div>
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={updateProfile.isPending}>Save Profile</Button>
-            <Button type="button" variant="outline" onClick={() => toast({ title: 'Password change', description: 'Use Supabase reset password flow from Auth page.' })}>
-              Change Password
-            </Button>
-          </div>
-        </form>
+      return (
+        <section>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+          <ProfileEditor />
+        </section>
       );
     }
 

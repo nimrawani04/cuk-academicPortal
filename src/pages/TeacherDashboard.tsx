@@ -1,18 +1,21 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, BookOpen, Calendar, ClipboardList, FolderOpen, UserCheck, LogOut } from 'lucide-react';
+import { Bell, BookOpen, Calendar, ClipboardList, FolderOpen, UserCheck, LogOut, User } from 'lucide-react';
 import { TeacherNotices } from '@/components/teacher/TeacherNotices';
 import { TeacherMarks } from '@/components/teacher/TeacherMarks';
 import { TeacherAttendance } from '@/components/teacher/TeacherAttendance';
 import { TeacherAssignments } from '@/components/teacher/TeacherAssignments';
 import { TeacherResources } from '@/components/teacher/TeacherResources';
 import { TeacherLeave } from '@/components/teacher/TeacherLeave';
+import { ProfileEditor } from '@/components/profile/ProfileEditor';
 
 const TeacherDashboard = () => {
   const { signOut } = useAuth();
   const { data: profile } = useProfile();
+  const [activeTab, setActiveTab] = useState('notices');
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,14 +39,15 @@ const TeacherDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="notices" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="notices"><Bell className="h-4 w-4 mr-2" />Notices</TabsTrigger>
             <TabsTrigger value="marks"><ClipboardList className="h-4 w-4 mr-2" />Marks</TabsTrigger>
             <TabsTrigger value="attendance"><UserCheck className="h-4 w-4 mr-2" />Attendance</TabsTrigger>
             <TabsTrigger value="assignments"><BookOpen className="h-4 w-4 mr-2" />Assignments</TabsTrigger>
             <TabsTrigger value="resources"><FolderOpen className="h-4 w-4 mr-2" />Resources</TabsTrigger>
             <TabsTrigger value="leave"><Calendar className="h-4 w-4 mr-2" />Leave</TabsTrigger>
+            <TabsTrigger value="profile"><User className="h-4 w-4 mr-2" />Profile</TabsTrigger>
           </TabsList>
 
           <TabsContent value="notices" className="mt-6"><TeacherNotices /></TabsContent>
@@ -52,6 +56,7 @@ const TeacherDashboard = () => {
           <TabsContent value="assignments" className="mt-6"><TeacherAssignments /></TabsContent>
           <TabsContent value="resources" className="mt-6"><TeacherResources /></TabsContent>
           <TabsContent value="leave" className="mt-6"><TeacherLeave /></TabsContent>
+          <TabsContent value="profile" className="mt-6"><ProfileEditor /></TabsContent>
         </Tabs>
       </div>
     </div>

@@ -32,6 +32,7 @@ import { useResources } from '@/hooks/useResources';
 import { useLibraryBooks, useStudentBookIssues } from '@/hooks/useLibrary';
 import { useCreateLeaveApplication, useStudentLeaveApplications } from '@/hooks/useLeaveApplications';
 import { useProfile } from '@/hooks/useProfile';
+import { useUpcomingExams } from '@/hooks/useExams';
 import { PerformanceCharts } from '@/components/student/PerformanceCharts';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 

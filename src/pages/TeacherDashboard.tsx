@@ -45,6 +45,7 @@ const TeacherDashboard = () => {
       { id: 'attendance', label: 'Attendance', icon: UserCheck, section: 'Management', onClick: () => setActiveItem('attendance') },
       { id: 'assignments', label: 'Assignments', icon: BookOpen, section: 'Management', onClick: () => setActiveItem('assignments') },
       { id: 'resources', label: 'Resources', icon: FolderOpen, section: 'Academic', onClick: () => setActiveItem('resources') },
+      { id: 'exams', label: 'Exams', icon: Calendar, section: 'Academic', onClick: () => setActiveItem('exams') },
       { id: 'leave', label: 'Leave', icon: Calendar, section: 'Academic', onClick: () => setActiveItem('leave') },
       { id: 'bulk-upload', label: 'Bulk Upload', icon: Upload, section: 'Academic', onClick: () => setActiveItem('bulk-upload') },
     ],

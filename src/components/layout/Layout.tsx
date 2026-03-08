@@ -28,6 +28,7 @@ export const DashboardLayout = ({
   primaryItems,
   bottomItems,
   children,
+  onNavigate,
 }: DashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);

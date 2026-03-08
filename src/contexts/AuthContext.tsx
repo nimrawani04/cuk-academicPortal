@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .eq('user_id', session.user.id)
               .single();
             
-            setUserRole(roleData?.role as 'student' | 'teacher' | null);
+            setUserRole(roleData?.role as 'student' | 'teacher' | 'admin' | null);
             setLoading(false);
           }, 0);
         } else {
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .eq('user_id', session.user.id)
             .single();
           
-          setUserRole(roleData?.role as 'student' | 'teacher' | null);
+          setUserRole(roleData?.role as 'student' | 'teacher' | 'admin' | null);
           setLoading(false);
         }, 0);
       } else {

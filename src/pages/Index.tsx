@@ -11,6 +11,8 @@ const Index = () => {
     if (!loading) {
       if (!user) {
         navigate('/auth');
+      } else if (userRole === 'admin') {
+        navigate('/admin');
       } else if (userRole === 'teacher') {
         navigate('/teacher');
       } else if (userRole === 'student') {

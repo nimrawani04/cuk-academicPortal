@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
+  const [userRole, setUserRole] = useState<'student' | 'teacher' | 'admin' | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 

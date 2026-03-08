@@ -72,6 +72,8 @@ const TeacherDashboard = () => {
         return <TeacherAssignments />;
       case 'resources':
         return <TeacherResources />;
+      case 'exams':
+        return <TeacherExams />;
       case 'leave':
         return <TeacherLeave />;
       case 'bulk-upload':

@@ -2,11 +2,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutDashboard, Users, BookOpen, School, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, School, LogOut, ShieldCheck, User } from 'lucide-react';
 import { AdminOverview } from '@/components/admin/AdminOverview';
 import { AdminUsers } from '@/components/admin/AdminUsers';
 import { AdminSubjects } from '@/components/admin/AdminSubjects';
 import { AdminClasses } from '@/components/admin/AdminClasses';
+import { ProfileEditor } from '@/components/profile/ProfileEditor';
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();

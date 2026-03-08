@@ -281,6 +281,36 @@ const Auth = () => {
               <p>© 2026 Central University of Kashmir. All rights reserved.</p>
             </div>
           </div>
+
+          {/* Forgot Password Modal */}
+          {showForgot && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+              <div className={darkMode ? 'w-full max-w-sm rounded-xl border border-slate-700 bg-[#2b3140] p-6 shadow-xl' : 'w-full max-w-sm rounded-xl border bg-white p-6 shadow-xl'}>
+                <h2 className={darkMode ? 'text-lg font-semibold text-slate-100' : 'text-lg font-semibold text-slate-900'}>Reset Password</h2>
+                <p className={darkMode ? 'mt-1 text-sm text-slate-400' : 'mt-1 text-sm text-slate-500'}>
+                  Enter your email and we'll send you a reset link.
+                </p>
+                <form onSubmit={handleForgotPassword} className="mt-4 space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="Your email address"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                    className={darkMode ? 'h-11 border-slate-600 bg-slate-800 text-slate-100' : 'h-11'}
+                  />
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" className="flex-1" onClick={() => setShowForgot(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="flex-1" disabled={forgotLoading}>
+                      {forgotLoading ? 'Sending...' : 'Send Link'}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </div>

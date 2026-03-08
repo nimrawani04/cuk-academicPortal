@@ -18,6 +18,8 @@ const Index = () => {
       } else if (userRole === 'student') {
         navigate('/student');
       }
+      // If userRole is null but user exists, stay on loading screen
+      // until the role is fetched
     }
   }, [user, userRole, loading, navigate]);
 

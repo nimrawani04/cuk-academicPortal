@@ -60,6 +60,7 @@ const StudentDashboard = () => {
   const { data: issues = [] } = useStudentBookIssues();
   const { data: leaves = [] } = useStudentLeaveApplications();
   const { data: profile } = useProfile();
+  const { data: upcomingExams = [] } = useUpcomingExams();
 
   const submitAssignment = useSubmitAssignment();
   const createLeave = useCreateLeaveApplication();

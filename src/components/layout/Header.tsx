@@ -35,6 +35,7 @@ export const Header = ({
   onToggleTheme,
   darkMode,
   onOpenShortcuts,
+  onNavigate,
 }: HeaderProps) => {
   const { data: notices } = useNotices();
   const { data: exams } = useUpcomingExams();

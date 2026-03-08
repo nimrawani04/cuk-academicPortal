@@ -1,8 +1,16 @@
+import { useMemo, useState } from 'react';
+import {
+  BookOpen,
+  LayoutDashboard,
+  LogOut,
+  School,
+  User,
+  Users,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LayoutDashboard, Users, BookOpen, School, LogOut, ShieldCheck, User } from 'lucide-react';
+import { DashboardLayout } from '@/components/layout/Layout';
+import type { SidebarItem } from '@/components/layout/types';
 import { AdminOverview } from '@/components/admin/AdminOverview';
 import { AdminUsers } from '@/components/admin/AdminUsers';
 import { AdminSubjects } from '@/components/admin/AdminSubjects';
@@ -10,48 +18,72 @@ import { AdminClasses } from '@/components/admin/AdminClasses';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 
 const AdminDashboard = () => {
-  const { signOut } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const { data: profile } = useProfile();
+  const [activeItem, setActiveItem] = useState('overview');
+
+  const displayName = useMemo(() => {
+    const raw = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Admin';
+    return String(raw)
+      .split(/[._-]/)
+      .filter(Boolean)
+      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+      .join(' ');
+  }, [profile?.full_name, user?.user_metadata?.full_name, user?.email]);
+
+  const primaryItems = useMemo<SidebarItem[]>(
+    () => [
+      { id: 'overview', label: 'Overview', icon: LayoutDashboard, section: 'Dashboard', onClick: () => setActiveItem('overview') },
+      { id: 'users', label: 'Users', icon: Users, section: 'Dashboard', onClick: () => setActiveItem('users') },
+      { id: 'subjects', label: 'Subjects', icon: BookOpen, section: 'Management', onClick: () => setActiveItem('subjects') },
+      { id: 'classes', label: 'Classes', icon: School, section: 'Management', onClick: () => setActiveItem('classes') },
+    ],
+    []
+  );
+
+  const bottomItems = useMemo<SidebarItem[]>(
+    () => [
+      { id: 'profile', label: 'Profile', icon: User, onClick: () => setActiveItem('profile') },
+      { id: 'logout', label: 'Logout', icon: LogOut, onClick: signOut },
+    ],
+    [signOut]
+  );
+
+  const renderSection = () => {
+    switch (activeItem) {
+      case 'overview':
+        return <AdminOverview />;
+      case 'users':
+        return <AdminUsers />;
+      case 'subjects':
+        return <AdminSubjects />;
+      case 'classes':
+        return <AdminClasses />;
+      case 'profile':
+        return (
+          <section>
+            <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+            <ProfileEditor />
+          </section>
+        );
+      default:
+        return <AdminOverview />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-gradient-to-r from-rose-600 to-purple-700 text-white">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="h-6 w-6" />
-            <div>
-              <h1 className="text-xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm opacity-90">Central University of Kashmir</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">{profile?.full_name}</span>
-            <Button variant="secondary" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview"><LayoutDashboard className="h-4 w-4 mr-2" />Overview</TabsTrigger>
-            <TabsTrigger value="users"><Users className="h-4 w-4 mr-2" />Users</TabsTrigger>
-            <TabsTrigger value="subjects"><BookOpen className="h-4 w-4 mr-2" />Subjects</TabsTrigger>
-            <TabsTrigger value="classes"><School className="h-4 w-4 mr-2" />Classes</TabsTrigger>
-            <TabsTrigger value="profile"><User className="h-4 w-4 mr-2" />Profile</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="mt-6"><AdminOverview /></TabsContent>
-          <TabsContent value="users" className="mt-6"><AdminUsers /></TabsContent>
-          <TabsContent value="subjects" className="mt-6"><AdminSubjects /></TabsContent>
-          <TabsContent value="classes" className="mt-6"><AdminClasses /></TabsContent>
-          <TabsContent value="profile" className="mt-6"><ProfileEditor /></TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <DashboardLayout
+      appName="Academic"
+      appSubtitle="Admin Portal"
+      logoSrc="/favicon.ico"
+      userName={displayName}
+      role={userRole ?? 'admin'}
+      activeItem={activeItem}
+      primaryItems={primaryItems}
+      bottomItems={bottomItems}
+    >
+      {renderSection()}
+    </DashboardLayout>
   );
 };
 

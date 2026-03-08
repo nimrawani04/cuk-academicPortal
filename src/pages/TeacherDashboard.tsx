@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  Bell,
+  BookOpen,
+  Calendar,
+  ClipboardList,
+  FolderOpen,
+  LogOut,
+  Upload,
+  User,
+  UserCheck,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, BookOpen, Calendar, ClipboardList, FolderOpen, UserCheck, LogOut, User } from 'lucide-react';
+import { DashboardLayout } from '@/components/layout/Layout';
+import type { SidebarItem } from '@/components/layout/types';
 import { TeacherNotices } from '@/components/teacher/TeacherNotices';
 import { TeacherMarks } from '@/components/teacher/TeacherMarks';
 import { TeacherAttendance } from '@/components/teacher/TeacherAttendance';
@@ -11,55 +21,84 @@ import { TeacherAssignments } from '@/components/teacher/TeacherAssignments';
 import { TeacherResources } from '@/components/teacher/TeacherResources';
 import { TeacherLeave } from '@/components/teacher/TeacherLeave';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
+import { BulkUpload } from '@/components/teacher/BulkUpload';
 
 const TeacherDashboard = () => {
-  const { signOut } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const { data: profile } = useProfile();
-  const [activeTab, setActiveTab] = useState('notices');
+  const [activeItem, setActiveItem] = useState('notices');
+
+  const displayName = useMemo(() => {
+    const raw = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Teacher';
+    return String(raw)
+      .split(/[._-]/)
+      .filter(Boolean)
+      .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+      .join(' ');
+  }, [profile?.full_name, user?.user_metadata?.full_name, user?.email]);
+
+  const primaryItems = useMemo<SidebarItem[]>(
+    () => [
+      { id: 'notices', label: 'Notices', icon: Bell, section: 'Management', onClick: () => setActiveItem('notices') },
+      { id: 'marks', label: 'Marks', icon: ClipboardList, section: 'Management', onClick: () => setActiveItem('marks') },
+      { id: 'attendance', label: 'Attendance', icon: UserCheck, section: 'Management', onClick: () => setActiveItem('attendance') },
+      { id: 'assignments', label: 'Assignments', icon: BookOpen, section: 'Management', onClick: () => setActiveItem('assignments') },
+      { id: 'resources', label: 'Resources', icon: FolderOpen, section: 'Academic', onClick: () => setActiveItem('resources') },
+      { id: 'leave', label: 'Leave', icon: Calendar, section: 'Academic', onClick: () => setActiveItem('leave') },
+      { id: 'bulk-upload', label: 'Bulk Upload', icon: Upload, section: 'Academic', onClick: () => setActiveItem('bulk-upload') },
+    ],
+    []
+  );
+
+  const bottomItems = useMemo<SidebarItem[]>(
+    () => [
+      { id: 'profile', label: 'Profile', icon: User, onClick: () => setActiveItem('profile') },
+      { id: 'logout', label: 'Logout', icon: LogOut, onClick: signOut },
+    ],
+    [signOut]
+  );
+
+  const renderSection = () => {
+    switch (activeItem) {
+      case 'notices':
+        return <TeacherNotices />;
+      case 'marks':
+        return <TeacherMarks />;
+      case 'attendance':
+        return <TeacherAttendance />;
+      case 'assignments':
+        return <TeacherAssignments />;
+      case 'resources':
+        return <TeacherResources />;
+      case 'leave':
+        return <TeacherLeave />;
+      case 'bulk-upload':
+        return <BulkUpload />;
+      case 'profile':
+        return (
+          <section>
+            <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+            <ProfileEditor />
+          </section>
+        );
+      default:
+        return <TeacherNotices />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-gradient-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <BookOpen className="h-6 w-6" />
-            <div>
-              <h1 className="text-xl font-bold">Teacher Dashboard</h1>
-              <p className="text-sm opacity-90">Central University of Kashmir</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">{profile?.full_name}</span>
-            <Button variant="secondary" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="notices"><Bell className="h-4 w-4 mr-2" />Notices</TabsTrigger>
-            <TabsTrigger value="marks"><ClipboardList className="h-4 w-4 mr-2" />Marks</TabsTrigger>
-            <TabsTrigger value="attendance"><UserCheck className="h-4 w-4 mr-2" />Attendance</TabsTrigger>
-            <TabsTrigger value="assignments"><BookOpen className="h-4 w-4 mr-2" />Assignments</TabsTrigger>
-            <TabsTrigger value="resources"><FolderOpen className="h-4 w-4 mr-2" />Resources</TabsTrigger>
-            <TabsTrigger value="leave"><Calendar className="h-4 w-4 mr-2" />Leave</TabsTrigger>
-            <TabsTrigger value="profile"><User className="h-4 w-4 mr-2" />Profile</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="notices" className="mt-6"><TeacherNotices /></TabsContent>
-          <TabsContent value="marks" className="mt-6"><TeacherMarks /></TabsContent>
-          <TabsContent value="attendance" className="mt-6"><TeacherAttendance /></TabsContent>
-          <TabsContent value="assignments" className="mt-6"><TeacherAssignments /></TabsContent>
-          <TabsContent value="resources" className="mt-6"><TeacherResources /></TabsContent>
-          <TabsContent value="leave" className="mt-6"><TeacherLeave /></TabsContent>
-          <TabsContent value="profile" className="mt-6"><ProfileEditor /></TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <DashboardLayout
+      appName="Academic"
+      appSubtitle="Teacher Portal"
+      logoSrc="/favicon.ico"
+      userName={displayName}
+      role={userRole ?? 'teacher'}
+      activeItem={activeItem}
+      primaryItems={primaryItems}
+      bottomItems={bottomItems}
+    >
+      {renderSection()}
+    </DashboardLayout>
   );
 };
 

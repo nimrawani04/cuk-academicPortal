@@ -476,38 +476,11 @@ const StudentDashboard = () => {
     }
 
     if (activeItem === 'profile') {
-      return sectionShell(
-        'Profile Management',
-        <form onSubmit={handleProfileSave} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label>Full Name</Label>
-              <Input value={profileForm.fullName} onChange={(e) => setProfileForm((p) => ({ ...p, fullName: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Email</Label>
-              <Input value={profile?.email || user?.email || ''} disabled />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Department</Label>
-              <Input value={profileForm.department} onChange={(e) => setProfileForm((p) => ({ ...p, department: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Phone</Label>
-              <Input value={profileForm.phone} onChange={(e) => setProfileForm((p) => ({ ...p, phone: e.target.value }))} />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Avatar URL</Label>
-            <Input value={profileForm.avatarUrl} onChange={(e) => setProfileForm((p) => ({ ...p, avatarUrl: e.target.value }))} />
-          </div>
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={updateProfile.isPending}>Save Profile</Button>
-            <Button type="button" variant="outline" onClick={() => toast({ title: 'Password change', description: 'Use Supabase reset password flow from Auth page.' })}>
-              Change Password
-            </Button>
-          </div>
-        </form>
+      return (
+        <section>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+          <ProfileEditor />
+        </section>
       );
     }
 

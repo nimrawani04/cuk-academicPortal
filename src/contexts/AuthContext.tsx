@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  userRole: 'student' | 'teacher' | null;
+  userRole: 'student' | 'teacher' | 'admin' | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }

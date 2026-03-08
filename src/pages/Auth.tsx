@@ -16,8 +16,29 @@ const Auth = () => {
   const [role, setRole] = useState<'student' | 'teacher' | ''>('');
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('auth_theme') === 'dark');
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: 'Check your email', description: 'A password reset link has been sent.' });
+      setShowForgot(false);
+      setForgotEmail('');
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   useEffect(() => {
     const root = document.documentElement;

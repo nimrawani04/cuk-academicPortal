@@ -15,6 +15,7 @@ type DashboardLayoutProps = {
   primaryItems: SidebarItem[];
   bottomItems: SidebarItem[];
   children: ReactNode;
+  onNavigate?: (section: string) => void;
 };
 
 export const DashboardLayout = ({
@@ -27,6 +28,7 @@ export const DashboardLayout = ({
   primaryItems,
   bottomItems,
   children,
+  onNavigate,
 }: DashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -75,6 +77,7 @@ export const DashboardLayout = ({
             darkMode={darkMode}
             onToggleTheme={() => setDarkMode((prev) => !prev)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
+            onNavigate={onNavigate}
           />
 
           <div className="px-5 py-6 lg:px-8 lg:py-8">{children}</div>

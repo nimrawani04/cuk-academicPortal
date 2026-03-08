@@ -102,6 +102,7 @@ const TeacherDashboard = () => {
       activeItem={activeItem}
       primaryItems={primaryItems}
       bottomItems={bottomItems}
+      onNavigate={setActiveItem}
     >
       {renderSection()}
     </DashboardLayout>

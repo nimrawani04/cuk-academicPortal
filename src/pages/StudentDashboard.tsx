@@ -64,16 +64,6 @@ const StudentDashboard = () => {
   const createLeave = useCreateLeaveApplication();
   
 
-  useEffect(() => {
-    if (profile) {
-      setProfileForm({
-        fullName: profile.full_name || '',
-        department: profile.department || '',
-        phone: profile.phone || '',
-        avatarUrl: profile.avatar_url || '',
-      });
-    }
-  }, [profile]);
 
   const displayName = useMemo(() => {
     const prefix = (profile?.full_name?.trim() || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student') as string;

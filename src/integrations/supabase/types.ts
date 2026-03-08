@@ -706,6 +706,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_account: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

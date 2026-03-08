@@ -20,6 +20,7 @@ import { TeacherAttendance } from '@/components/teacher/TeacherAttendance';
 import { TeacherAssignments } from '@/components/teacher/TeacherAssignments';
 import { TeacherResources } from '@/components/teacher/TeacherResources';
 import { TeacherLeave } from '@/components/teacher/TeacherLeave';
+import { TeacherExams } from '@/components/teacher/TeacherExams';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
 import { BulkUpload } from '@/components/teacher/BulkUpload';
 

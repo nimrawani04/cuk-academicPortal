@@ -32,6 +32,7 @@ import { useResources } from '@/hooks/useResources';
 import { useLibraryBooks, useStudentBookIssues } from '@/hooks/useLibrary';
 import { useCreateLeaveApplication, useStudentLeaveApplications } from '@/hooks/useLeaveApplications';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { PerformanceCharts } from '@/components/student/PerformanceCharts';
 
 const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();

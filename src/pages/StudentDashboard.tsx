@@ -62,7 +62,7 @@ const StudentDashboard = () => {
 
   const submitAssignment = useSubmitAssignment();
   const createLeave = useCreateLeaveApplication();
-  const updateProfile = useUpdateProfile();
+  
 
   useEffect(() => {
     if (profile) {

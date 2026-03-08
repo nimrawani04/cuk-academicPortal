@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Camera, Loader2, Save, User } from 'lucide-react';
+import { Camera, Check, Loader2, Palette, Save, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { ACCENT_PRESETS } from '@/hooks/useAccentColor';
 
 const DEPARTMENTS = [
   'Computer Science',
@@ -41,6 +42,8 @@ export function ProfileEditor() {
     employeeId: '',
   });
 
+  const [selectedAccent, setSelectedAccent] = useState<string>('Blue');
+
   useEffect(() => {
     if (profile) {
       setForm({
@@ -51,6 +54,7 @@ export function ProfileEditor() {
         enrollmentNumber: profile.enrollment_number || '',
         employeeId: profile.employee_id || '',
       });
+      setSelectedAccent((profile as any).accent_color || 'Blue');
     }
   }, [profile]);
 
@@ -99,6 +103,18 @@ export function ProfileEditor() {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  const handleAccentChange = (colorName: string) => {
+    setSelectedAccent(colorName);
+    updateProfile.mutate(
+      { accent_color: colorName } as any,
+      {
+        onSuccess: () => toast({ title: 'Theme updated', description: `Accent color set to ${colorName}.` }),
+        onError: (err: any) =>
+          toast({ title: 'Update failed', description: err?.message || 'Please try again.', variant: 'destructive' }),
+      }
+    );
   };
 
   const handleSave = (e: React.FormEvent) => {
@@ -175,6 +191,44 @@ export function ProfileEditor() {
               {userRole} · Joined {profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : ''}
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Accent Color Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Palette className="h-5 w-5" />
+            Accent Color
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            Choose an accent color for your dashboard. This personalizes your sidebar, badges, and highlights.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {ACCENT_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                title={preset.name}
+                onClick={() => handleAccentChange(preset.name)}
+                className="relative flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all hover:scale-110"
+                style={{
+                  backgroundColor: preset.value,
+                  borderColor: selectedAccent === preset.name ? preset.value : 'transparent',
+                  boxShadow: selectedAccent === preset.name ? `0 0 0 3px ${preset.value}33` : 'none',
+                }}
+              >
+                {selectedAccent === preset.name && (
+                  <Check className="h-4 w-4 text-white" />
+                )}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Selected: <span className="font-medium text-foreground">{selectedAccent}</span>
+          </p>
         </CardContent>
       </Card>
 

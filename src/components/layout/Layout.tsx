@@ -1,9 +1,10 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import type { AppRole, SidebarItem } from './types';
 import { cn } from '@/lib/utils';
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 type DashboardLayoutProps = {
   appName: string;
@@ -33,6 +34,7 @@ export const DashboardLayout = ({
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  useAccentColor();
 
   const initials = useMemo(() => {
     const words = userName.split(' ').filter(Boolean);
@@ -51,7 +53,7 @@ export const DashboardLayout = ({
   }, [darkMode]);
 
   return (
-    <div className={cn('h-dvh overflow-hidden', darkMode ? 'bg-[#1f1f2b] text-slate-100' : 'bg-[#f6edf4] text-slate-900')}>
+    <div className={cn('h-dvh overflow-hidden bg-background text-foreground')}>
       <div className="flex h-full">
         <Sidebar
           collapsed={collapsed}
@@ -91,10 +93,10 @@ export const DashboardLayout = ({
             <DialogDescription>Quick navigation for common actions</DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 text-sm">
-            <button className="rounded-lg border border-slate-200 px-3 py-2 text-left hover:bg-slate-50">Go to Notices</button>
-            <button className="rounded-lg border border-slate-200 px-3 py-2 text-left hover:bg-slate-50">Check Assignments</button>
-            <button className="rounded-lg border border-slate-200 px-3 py-2 text-left hover:bg-slate-50">Open Library</button>
-            <button className="rounded-lg border border-slate-200 px-3 py-2 text-left hover:bg-slate-50">Apply for Leave</button>
+            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Go to Notices</button>
+            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Check Assignments</button>
+            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Open Library</button>
+            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Apply for Leave</button>
           </div>
         </DialogContent>
       </Dialog>

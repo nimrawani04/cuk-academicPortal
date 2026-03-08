@@ -1,4 +1,4 @@
-﻿import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AppRole, SidebarItem } from './types';
 
@@ -34,13 +34,13 @@ export const Sidebar = ({
   return (
     <aside
       className={cn(
-        'relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-[#132b5e] bg-[#0f1f44] text-white transition-all duration-300 lg:flex',
+        'relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300 lg:flex',
         collapsed ? 'w-[78px]' : 'w-[244px]'
       )}
     >
       <button
         onClick={onToggle}
-        className="absolute right-3 top-6 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-[#d82f87] bg-[#0f1f44] text-white shadow-md"
+        className="absolute right-3 top-6 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground shadow-md"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -60,7 +60,7 @@ export const Sidebar = ({
 
       <div className="flex-1 px-3 py-4">
         <div className={cn('mb-4 flex items-center', collapsed ? 'justify-center' : 'gap-2.5')}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d61f82] text-[15px] font-bold">
+          <div className="sidebar-avatar flex h-10 w-10 items-center justify-center rounded-full text-[15px] font-bold text-white">
             {initials}
           </div>
           {!collapsed && (
@@ -92,7 +92,7 @@ export const Sidebar = ({
                           'flex h-10 w-full items-center rounded-lg text-left transition-colors',
                           collapsed ? 'justify-center px-0' : 'gap-3 px-3',
                           isActive
-                            ? 'border-l-4 border-l-[#ec4899] bg-[#ec4899]/10 text-white'
+                            ? 'sidebar-active-item text-white'
                             : 'text-white/80 hover:bg-white/10 hover:text-white'
                         )}
                       >
@@ -122,9 +122,9 @@ export const Sidebar = ({
                 collapsed ? 'justify-center px-0' : 'gap-3 px-4'
               )}
             >
-              <Icon className={cn('h-3.5 w-3.5 shrink-0', isLogout ? 'text-[#ff5a67]' : 'text-white/80')} />
+              <Icon className={cn('h-3.5 w-3.5 shrink-0', isLogout ? 'text-destructive' : 'text-white/80')} />
               {!collapsed && (
-                <span className={cn('text-[12px] font-semibold', isLogout ? 'text-[#ff5a67]' : 'text-white/85')}>
+                <span className={cn('text-[12px] font-semibold', isLogout ? 'text-destructive' : 'text-white/85')}>
                   {item.label}
                 </span>
               )}

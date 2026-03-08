@@ -15,6 +15,7 @@ type DashboardLayoutProps = {
   primaryItems: SidebarItem[];
   bottomItems: SidebarItem[];
   children: ReactNode;
+  onNavigate?: (section: string) => void;
 };
 
 export const DashboardLayout = ({

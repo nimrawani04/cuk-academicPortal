@@ -19,12 +19,22 @@ export const ACCENT_PRESETS = [
 
 function applyAccentHue(hue: number) {
   const root = document.documentElement;
+  const isDark = root.classList.contains('dark');
+  // Base accent hue
+  root.style.setProperty('--accent-hue', `${hue}`);
   // Sidebar
   root.style.setProperty('--sidebar-bg-h', `${hue}`);
   root.style.setProperty('--sidebar-bg-s', '33%');
   root.style.setProperty('--sidebar-bg-l', '17%');
-  // Accent highlight color used for active states, badges, avatar bg
-  root.style.setProperty('--accent-hue', `${hue}`);
+
+  // Force key tokens to update (prevents nested var issues)
+  root.style.setProperty('--primary', `${hue} 91% ${isDark ? '60%' : '45%'}`);
+  root.style.setProperty('--primary-light', `${hue} 91% ${isDark ? '70%' : '60%'}`);
+  root.style.setProperty('--ring', `${hue} 91% 60%`);
+  root.style.setProperty('--sidebar-primary', `${hue} 91% 60%`);
+  root.style.setProperty('--sidebar-accent', `${hue} 33% ${isDark ? '20%' : '25%'}`);
+  root.style.setProperty('--accent', `${hue} 60% ${isDark ? '17%' : '96%'}`);
+  root.style.setProperty('--secondary', `${hue} 55% ${isDark ? '12%' : '96%'}`);
 }
 
 export function useAccentColor() {

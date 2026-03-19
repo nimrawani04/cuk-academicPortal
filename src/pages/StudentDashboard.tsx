@@ -7,7 +7,6 @@ import {
   ClipboardList,
   FolderOpen,
   GraduationCap,
-  LayoutDashboard,
   LogOut,
   TrendingUp,
   User,
@@ -15,10 +14,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/Layout';
 import type { SidebarItem } from '@/components/layout/types';
-import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
-import { StatsCard } from '@/components/dashboard/StatsCard';
-import { NoticeList } from '@/components/dashboard/NoticeList';
-import { QuickActions } from '@/components/dashboard/QuickActions';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -79,6 +75,11 @@ const StudentDashboard = () => {
   }, [profile?.full_name, user?.user_metadata?.full_name, user?.email]);
 
   const subjectIds = useMemo(() => new Set(enrollments.map((e: any) => e.subject_id)), [enrollments]);
+  const classIds = useMemo(() => new Set(enrollments.map((e: any) => e.class_id)), [enrollments]);
+  const studentUpcomingExams = useMemo(
+    () => upcomingExams.filter((exam: any) => subjectIds.has(exam.subject_id)),
+    [upcomingExams, subjectIds]
+  );
 
   const studentAssignments = useMemo(
     () => assignments.filter((a: any) => subjectIds.has(a.subject_id)),
@@ -115,9 +116,19 @@ const StudentDashboard = () => {
     return `${Math.round((presentCount / attendance.length) * 100)}%`;
   }, [attendance]);
 
+  const filteredNotices = useMemo(() => {
+    return notices.filter((n: any) => {
+      const audience = (n.target_audience || 'all').toLowerCase();
+      const audienceOk = ['all', 'students', 'student'].includes(audience);
+      const subjectOk = !n.subject_id || subjectIds.has(n.subject_id);
+      const classOk = !n.class_id || classIds.has(n.class_id);
+      return audienceOk && subjectOk && classOk;
+    });
+  }, [notices, subjectIds, classIds]);
+
   const mappedNotices = useMemo(
     () =>
-      notices.slice(0, 6).map((n: any) => ({
+      filteredNotices.slice(0, 6).map((n: any) => ({
         id: n.id,
         title: n.title,
         description: n.content,
@@ -128,7 +139,23 @@ const StudentDashboard = () => {
           | 'Holiday'
           | 'General',
       })),
-    [notices]
+    [filteredNotices]
+  );
+
+  const mappedAllNotices = useMemo(
+    () =>
+      filteredNotices.map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        description: n.content,
+        date: new Date(n.created_at).toLocaleDateString(),
+        tag: (n.priority === 'urgent' ? 'Important' : n.title?.toLowerCase().includes('exam') ? 'Exam' : 'General') as
+          | 'Important'
+          | 'Exam'
+          | 'Holiday'
+          | 'General',
+      })),
+    [filteredNotices]
   );
 
   const primaryItems = useMemo<SidebarItem[]>(
@@ -205,26 +232,106 @@ const StudentDashboard = () => {
 
 
   const renderOverview = () => (
-    <>
-      <WelcomeSection name={displayName} />
-
-      <section className="mb-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} />
-        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} />
-        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} />
-        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} />
+    <div className="space-y-10">
+      <section>
+        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Overview</p>
+        <div className="mt-3 h-px w-full bg-border/70" />
+      </section>
+      <section className="flex flex-wrap items-center gap-6 text-[13px] text-muted-foreground">
+        {[
+          { label: 'Enrolled', value: enrollments.length },
+          { label: 'Assignments', value: pendingAssignments.length },
+          { label: 'Marks', value: averageMarks },
+          { label: 'Deadlines', value: upcomingDeadlines.length },
+        ].map((stat, index) => (
+          <div key={stat.label} className="stat-strip-item flex items-center gap-2">
+            <span className="text-[16px] font-semibold text-foreground">{stat.value}</span>
+            <span className="text-[13px] text-muted-foreground">{stat.label}</span>
+            {index < 3 && <span className="mx-4 h-4 w-px bg-border/70" />}
+          </div>
+        ))}
       </section>
 
-      <div className="grid gap-8 xl:grid-cols-[2fr_1fr]">
-        <NoticeList notices={mappedNotices} />
-        <QuickActions
-          deadlines={upcomingDeadlines}
-          onUploadAssignment={() => setActiveItem('assignments')}
-          onViewMarks={() => setActiveItem('marks')}
-          onContactFaculty={() => setActiveItem('courses')}
-        />
-      </div>
-    </>
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-foreground">Latest Notices</h2>
+          <button
+            onClick={() => setActiveItem('notices')}
+            className="text-[12px] font-medium text-primary hover:underline"
+          >
+            View all
+          </button>
+        </div>
+        <div className="notice-timeline pl-6">
+          {mappedNotices.length ? (
+            mappedNotices.map((notice) => (
+              <div key={notice.id} className="flex gap-4 border-b border-border/60 py-4">
+                <span className="notice-dot" />
+                <div className="flex flex-1 flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[15px] font-semibold text-foreground">{notice.title}</p>
+                    <p className="mt-1 text-[13px] text-muted-foreground">{notice.description}</p>
+                    <p className="mt-2 text-[12px] text-muted-foreground">{notice.date}</p>
+                  </div>
+                  <span
+                    className={cn(
+                      'rounded-full border px-2 py-0.5 text-[11px] font-semibold capitalize',
+                      notice.tag === 'Important' && 'border-amber-200 bg-amber-50 text-amber-700',
+                      notice.tag === 'Exam' && 'border-indigo-200 bg-indigo-50 text-indigo-700',
+                      notice.tag === 'Holiday' && 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                      notice.tag === 'General' && 'border-slate-200 bg-slate-50 text-slate-600'
+                    )}
+                  >
+                    {notice.tag}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-4 text-[13px] text-muted-foreground">No notices yet.</p>
+          )}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-[16px] font-semibold text-foreground">Deadlines & Actions</h2>
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Upcoming Deadlines</p>
+            {upcomingDeadlines.length ? (
+              <ul className="space-y-2 text-[13px] text-foreground">
+                {upcomingDeadlines.map((deadline) => (
+                  <li key={deadline} className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span>{deadline}</span>
+                    <span className="text-[12px] text-muted-foreground">Due soon</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[13px] text-muted-foreground">No upcoming deadlines.</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Quick Actions</p>
+            <div className="space-y-2 text-[13px] text-foreground">
+              {primaryItems
+                .filter((item) => ['assignments', 'marks', 'courses'].includes(item.id))
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={item.onClick}
+                    className="flex w-full items-center justify-between border-b border-border/60 pb-2 text-left text-[13px] hover:bg-slate-50 hover:text-foreground"
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-[12px] text-muted-foreground">Open</span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 
   const sectionShell = (title: string, content: ReactNode) => (
@@ -235,7 +342,44 @@ const StudentDashboard = () => {
   );
 
   const renderSection = () => {
-    if (activeItem === 'notices') return renderOverview();
+    if (activeItem === 'notices') {
+      return (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[18px] font-semibold text-foreground">Notices</h2>
+          </div>
+          <div className="notice-timeline pl-6">
+            {mappedAllNotices.length ? (
+              mappedAllNotices.map((notice) => (
+                <div key={notice.id} className="flex gap-4 border-b border-border/60 py-4">
+                  <span className="notice-dot" />
+                  <div className="flex flex-1 flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[15px] font-semibold text-foreground">{notice.title}</p>
+                      <p className="mt-1 text-[13px] text-muted-foreground">{notice.description}</p>
+                      <p className="mt-2 text-[12px] text-muted-foreground">{notice.date}</p>
+                    </div>
+                    <span
+                      className={cn(
+                        'rounded-full border px-2 py-0.5 text-[11px] font-semibold capitalize',
+                        notice.tag === 'Important' && 'border-amber-200 bg-amber-50 text-amber-700',
+                        notice.tag === 'Exam' && 'border-indigo-200 bg-indigo-50 text-indigo-700',
+                        notice.tag === 'Holiday' && 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                        notice.tag === 'General' && 'border-slate-200 bg-slate-50 text-slate-600'
+                      )}
+                    >
+                      {notice.tag}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="py-4 text-[13px] text-muted-foreground">No notices yet.</p>
+            )}
+          </div>
+        </section>
+      );
+    }
 
     if (activeItem === 'courses') {
       return sectionShell(
@@ -258,9 +402,9 @@ const StudentDashboard = () => {
     if (activeItem === 'exams') {
       return sectionShell(
         'Exam Schedule',
-        upcomingExams.length ? (
+        studentUpcomingExams.length ? (
           <div className="space-y-3">
-            {upcomingExams.map((exam: any) => {
+            {studentUpcomingExams.map((exam: any) => {
               const examDate = new Date(exam.exam_date);
               const isPast = examDate < new Date(new Date().toDateString());
               const isToday = exam.exam_date === new Date().toISOString().split('T')[0];
@@ -528,6 +672,12 @@ const StudentDashboard = () => {
     return renderOverview();
   };
 
+  const headerTitle = activeItem === 'notices' ? 'Notices' : `Welcome back, ${displayName}`;
+  const headerSubtitle =
+    activeItem === 'notices'
+      ? 'Latest announcements relevant to your courses.'
+      : 'Stay on top of your coursework and upcoming tasks.';
+
   return (
     <DashboardLayout
       appName="Academic"
@@ -540,6 +690,10 @@ const StudentDashboard = () => {
       bottomItems={bottomItems}
       onNavigate={setActiveItem}
       scrollable={false}
+      headerTitle={headerTitle}
+      headerSubtitle={headerSubtitle}
+      primaryActionLabel={activeItem === 'notices' ? undefined : 'Upload Assignment'}
+      onPrimaryAction={activeItem === 'notices' ? undefined : () => setActiveItem('assignments')}
     >
       {renderSection()}
     </DashboardLayout>

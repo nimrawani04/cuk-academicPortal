@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import type { AppRole, SidebarItem } from './types';
@@ -18,6 +17,10 @@ type DashboardLayoutProps = {
   children: ReactNode;
   onNavigate?: (section: string) => void;
   scrollable?: boolean;
+  headerTitle?: string;
+  headerSubtitle?: string;
+  primaryActionLabel?: string;
+  onPrimaryAction?: () => void;
 };
 
 export const DashboardLayout = ({
@@ -32,10 +35,13 @@ export const DashboardLayout = ({
   children,
   onNavigate,
   scrollable = true,
+  headerTitle,
+  headerSubtitle,
+  primaryActionLabel,
+  onPrimaryAction,
 }: DashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   useAccentColor();
 
   const initials = useMemo(() => {
@@ -62,7 +68,7 @@ export const DashboardLayout = ({
   }, [scrollable]);
 
   return (
-    <div className={cn('app-shell h-dvh overflow-hidden text-foreground')}>
+    <div className={cn('app-shell smooth-ui h-dvh overflow-hidden text-foreground')}>
       <div className="flex h-full">
         <Sidebar
           collapsed={collapsed}
@@ -80,14 +86,16 @@ export const DashboardLayout = ({
 
         <main className={cn('min-w-0 flex-1', scrollable ? 'overflow-y-auto' : 'overflow-hidden')}>
           <Header
-            breadcrumb={['Dashboard', 'Overview']}
-            subtitle="Stay updated with important announcements"
+            breadcrumb={headerTitle ? undefined : ['Dashboard', 'Overview']}
+            subtitle={headerSubtitle ?? (headerTitle ? undefined : 'Stay updated with important announcements')}
+            title={headerTitle}
             userName={userName}
             initials={initials}
             darkMode={darkMode}
             onToggleTheme={() => setDarkMode((prev) => !prev)}
-            onOpenShortcuts={() => setShortcutsOpen(true)}
             onNavigate={onNavigate}
+            primaryActionLabel={primaryActionLabel}
+            onPrimaryAction={onPrimaryAction}
           />
 
           <div className={cn(scrollable ? 'px-5 py-6 lg:px-8 lg:py-8' : 'px-4 py-4 lg:px-6 lg:py-5')}>
@@ -96,20 +104,6 @@ export const DashboardLayout = ({
         </main>
       </div>
 
-      <Dialog open={shortcutsOpen} onOpenChange={setShortcutsOpen}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Shortcuts</DialogTitle>
-            <DialogDescription>Quick navigation for common actions</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-2 text-sm">
-            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Go to Notices</button>
-            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Check Assignments</button>
-            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Open Library</button>
-            <button className="rounded-lg border border-border px-3 py-2 text-left hover:bg-muted">Apply for Leave</button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

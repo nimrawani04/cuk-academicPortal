@@ -5,8 +5,11 @@ import {
   BookOpen,
   Calendar,
   ClipboardList,
+  ChevronRight,
   FolderOpen,
   GraduationCap,
+  LayoutDashboard,
+  Inbox,
   LogOut,
   TrendingUp,
   User,
@@ -37,7 +40,7 @@ const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
   useRealtimeNotifications();
-  const [activeItem, setActiveItem] = useState('notices');
+  const [activeItem, setActiveItem] = useState('overview');
   const [submissionUrlByAssignment, setSubmissionUrlByAssignment] = useState<Record<string, string>>({});
   const [leaveForm, setLeaveForm] = useState({
     leaveType: '',
@@ -103,20 +106,24 @@ const StudentDashboard = () => {
     [pendingAssignments]
   );
 
-  const averageMarks = useMemo(() => {
-    if (!marks.length) return '0%';
+  const averageMarksValue = useMemo(() => {
+    if (!marks.length) return 0;
     const totals = marks.map((m: any) => Number(m.total_marks || 0));
-    const avg = totals.reduce((sum, n) => sum + n, 0) / totals.length;
-    return `${Math.round(avg)}%`;
+    return totals.reduce((sum, n) => sum + n, 0) / totals.length;
   }, [marks]);
 
-  const attendanceRate = useMemo(() => {
-    if (!attendance.length) return '0%';
+  const averageMarks = useMemo(() => `${Math.round(averageMarksValue)}%`, [averageMarksValue]);
+
+  const attendanceRateValue = useMemo(() => {
+    if (!attendance.length) return 0;
     const presentCount = attendance.filter((a: any) => a.status === 'present' || a.status === 'late').length;
-    return `${Math.round((presentCount / attendance.length) * 100)}%`;
+    return Math.round((presentCount / attendance.length) * 100);
   }, [attendance]);
 
+  const attendanceRate = useMemo(() => `${attendanceRateValue}%`, [attendanceRateValue]);
+
   const filteredNotices = useMemo(() => {
+    if (enrollments.length === 0) return [];
     return notices.filter((n: any) => {
       const audience = (n.target_audience || 'all').toLowerCase();
       const audienceOk = ['all', 'students', 'student'].includes(audience);
@@ -124,7 +131,7 @@ const StudentDashboard = () => {
       const classOk = !n.class_id || classIds.has(n.class_id);
       return audienceOk && subjectOk && classOk;
     });
-  }, [notices, subjectIds, classIds]);
+  }, [notices, subjectIds, classIds, enrollments.length]);
 
   const mappedNotices = useMemo(
     () =>
@@ -160,6 +167,7 @@ const StudentDashboard = () => {
 
   const primaryItems = useMemo<SidebarItem[]>(
     () => [
+      { id: 'overview', label: 'Overview', icon: LayoutDashboard, section: 'Dashboard', onClick: () => setActiveItem('overview') },
       { id: 'notices', label: 'Notices', icon: Bell, section: 'Dashboard', onClick: () => setActiveItem('notices') },
       { id: 'courses', label: 'My Courses', icon: BookOpen, section: 'Dashboard', onClick: () => setActiveItem('courses') },
       { id: 'exams', label: 'Exams', icon: Calendar, section: 'Dashboard', onClick: () => setActiveItem('exams') },
@@ -231,102 +239,184 @@ const StudentDashboard = () => {
   };
 
 
+  const statCards = [
+    { label: 'Enrolled', value: enrollments.length, icon: BookOpen, caption: 'This semester' },
+    { label: 'Assignments', value: pendingAssignments.length, icon: ClipboardList, caption: 'Pending' },
+    { label: 'Marks', value: averageMarks, icon: FolderOpen, caption: 'Current score' },
+    { label: 'Deadlines', value: upcomingDeadlines.length, icon: Calendar, caption: 'Next 14 days' },
+  ];
+
+  const deadlineItems = useMemo(() => {
+    return pendingAssignments
+      .map((a: any) => ({
+        id: a.id,
+        title: a.title,
+        due: a.due_date,
+        daysLeft: Math.ceil((new Date(a.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+      }))
+      .sort((a: any, b: any) => new Date(a.due).getTime() - new Date(b.due).getTime())
+      .slice(0, 5);
+  }, [pendingAssignments]);
+
   const renderOverview = () => (
     <div className="space-y-10">
       <section>
-        <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Overview</p>
-        <div className="mt-3 h-px w-full bg-border/70" />
-      </section>
-      <section className="flex flex-wrap items-center gap-6 text-[13px] text-muted-foreground">
-        {[
-          { label: 'Enrolled', value: enrollments.length },
-          { label: 'Assignments', value: pendingAssignments.length },
-          { label: 'Marks', value: averageMarks },
-          { label: 'Deadlines', value: upcomingDeadlines.length },
-        ].map((stat, index) => (
-          <div key={stat.label} className="stat-strip-item flex items-center gap-2">
-            <span className="text-[16px] font-semibold text-foreground">{stat.value}</span>
-            <span className="text-[13px] text-muted-foreground">{stat.label}</span>
-            {index < 3 && <span className="mx-4 h-4 w-px bg-border/70" />}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Overview</p>
+            <h2 className="mt-2 text-[18px] font-semibold text-foreground">Quick snapshot</h2>
           </div>
-        ))}
+        </div>
+        <div className="mt-4 h-px w-full bg-border/70" />
       </section>
 
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-foreground">Latest Notices</h2>
-          <button
-            onClick={() => setActiveItem('notices')}
-            className="text-[12px] font-medium text-primary hover:underline"
-          >
-            View all
-          </button>
-        </div>
-        <div className="notice-timeline pl-6">
-          {mappedNotices.length ? (
-            mappedNotices.map((notice) => (
-              <div key={notice.id} className="flex gap-4 border-b border-border/60 py-4">
-                <span className="notice-dot" />
-                <div className="flex flex-1 flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[15px] font-semibold text-foreground">{notice.title}</p>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              className="group rounded-2xl border border-slate-200/80 bg-white/90 p-4 shadow-[0_4px_20px_rgba(15,23,42,0.06)] transition hover:-translate-y-1"
+            >
+              <div className="flex items-center justify-between">
+                <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
+                  <Icon className="h-4 w-4" />
+                </div>
+                <p className="text-[26px] font-semibold text-foreground">{card.value}</p>
+              </div>
+              <div className="mt-3">
+                <p className="text-[14px] font-semibold text-foreground">{card.label}</p>
+                <p className="text-[12px] text-muted-foreground">{card.caption}</p>
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      <section className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-[16px] font-semibold text-foreground">Latest Notices</h3>
+            <button
+              onClick={() => setActiveItem('notices')}
+              className="text-[12px] font-medium text-primary hover:underline"
+            >
+              View all
+            </button>
+          </div>
+          <div className="rounded-2xl border border-slate-200/80 bg-white/90 shadow-[0_4px_20px_rgba(15,23,42,0.04)]">
+            {mappedNotices.length ? (
+              mappedNotices.map((notice, idx) => (
+                <div
+                  key={notice.id}
+                  className={cn('flex items-start gap-4 px-5 py-4', idx < mappedNotices.length - 1 && 'border-b border-slate-200/60')}
+                >
+                  <span className="notice-dot mt-1.5" />
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-[14px] font-semibold text-foreground">{notice.title}</p>
+                      <span
+                        className={cn(
+                          'rounded-full border px-2 py-0.5 text-[11px] font-semibold capitalize',
+                          notice.tag === 'Important' && 'border-amber-200 bg-amber-50 text-amber-700',
+                          notice.tag === 'Exam' && 'border-indigo-200 bg-indigo-50 text-indigo-700',
+                          notice.tag === 'Holiday' && 'border-emerald-200 bg-emerald-50 text-emerald-700',
+                          notice.tag === 'General' && 'border-slate-200 bg-slate-50 text-slate-600'
+                        )}
+                      >
+                        {notice.tag}
+                      </span>
+                    </div>
                     <p className="mt-1 text-[13px] text-muted-foreground">{notice.description}</p>
                     <p className="mt-2 text-[12px] text-muted-foreground">{notice.date}</p>
                   </div>
-                  <span
-                    className={cn(
-                      'rounded-full border px-2 py-0.5 text-[11px] font-semibold capitalize',
-                      notice.tag === 'Important' && 'border-amber-200 bg-amber-50 text-amber-700',
-                      notice.tag === 'Exam' && 'border-indigo-200 bg-indigo-50 text-indigo-700',
-                      notice.tag === 'Holiday' && 'border-emerald-200 bg-emerald-50 text-emerald-700',
-                      notice.tag === 'General' && 'border-slate-200 bg-slate-50 text-slate-600'
-                    )}
-                  >
-                    {notice.tag}
-                  </span>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="py-4 text-[13px] text-muted-foreground">No notices yet.</p>
-          )}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-[16px] font-semibold text-foreground">Deadlines & Actions</h2>
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Upcoming Deadlines</p>
-            {upcomingDeadlines.length ? (
-              <ul className="space-y-2 text-[13px] text-foreground">
-                {upcomingDeadlines.map((deadline) => (
-                  <li key={deadline} className="flex items-center justify-between border-b border-border/60 pb-2">
-                    <span>{deadline}</span>
-                    <span className="text-[12px] text-muted-foreground">Due soon</span>
-                  </li>
-                ))}
-              </ul>
+              ))
             ) : (
-              <p className="text-[13px] text-muted-foreground">No upcoming deadlines.</p>
+              <div className="flex flex-col items-center gap-2 px-6 py-10 text-center text-muted-foreground">
+                <Inbox className="h-8 w-8 text-muted-foreground" />
+                <p className="text-[14px] font-semibold">No notices yet</p>
+                <p className="text-[12px]">You're all caught up.</p>
+              </div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <p className="text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Quick Actions</p>
-            <div className="space-y-2 text-[13px] text-foreground">
+          <div className="space-y-3">
+            <h3 className="text-[16px] font-semibold text-foreground">Deadlines</h3>
+            <div className="rounded-2xl border border-slate-200/80 bg-white/90 px-5 py-4 shadow-[0_4px_20px_rgba(15,23,42,0.04)]">
+              {deadlineItems.length ? (
+                <div className="space-y-3">
+                  {deadlineItems.map((item) => {
+                    const urgency =
+                      item.daysLeft <= 1 ? 'text-red-600' : item.daysLeft <= 3 ? 'text-amber-600' : 'text-emerald-600';
+                    const urgencyLabel =
+                      item.daysLeft <= 0 ? 'Due today' : item.daysLeft === 1 ? 'Due tomorrow' : `Due in ${item.daysLeft} days`;
+                    return (
+                      <div key={item.id} className="flex items-center justify-between border-b border-slate-200/60 pb-2 last:border-b-0 last:pb-0">
+                        <div>
+                          <p className="text-[14px] font-semibold text-foreground">{item.title}</p>
+                          <p className="text-[12px] text-muted-foreground">{new Date(item.due).toLocaleDateString()}</p>
+                        </div>
+                        <span className={cn('text-[12px] font-semibold', urgency)}>{urgencyLabel}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-[13px] text-muted-foreground">No upcoming deadlines.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-[16px] font-semibold text-foreground">Quick Actions</h3>
+            <div className="mt-3 space-y-3">
               {primaryItems
-                .filter((item) => ['assignments', 'marks', 'courses'].includes(item.id))
-                .map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={item.onClick}
-                    className="flex w-full items-center justify-between border-b border-border/60 pb-2 text-left text-[13px] hover:bg-slate-50 hover:text-foreground"
-                  >
-                    <span>{item.label}</span>
-                    <span className="text-[12px] text-muted-foreground">Open</span>
-                  </button>
-                ))}
+                .filter((item) => ['courses', 'assignments', 'marks'].includes(item.id))
+                .map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={item.onClick}
+                      className="flex w-full items-center justify-between rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-3 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5"
+                    >
+                      <span className="flex items-center gap-3 text-[14px] font-semibold text-foreground">
+                        <span className="rounded-xl bg-primary/10 p-2 text-primary">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        {item.label}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-4 shadow-[0_4px_20px_rgba(15,23,42,0.04)]">
+            <h3 className="text-[14px] font-semibold text-foreground">Progress</h3>
+            <div className="mt-4 space-y-4">
+              <div>
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                  <span>Average Marks</span>
+                  <span className="font-semibold text-foreground">{averageMarks}</span>
+                </div>
+                <div className="mt-2 h-2 w-full rounded-full bg-slate-100">
+                  <div className="h-2 rounded-full bg-primary" style={{ width: `${averageMarksValue}%` }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                  <span>Attendance</span>
+                  <span className="font-semibold text-foreground">{attendanceRate}</span>
+                </div>
+                <div className="mt-2 h-2 w-full rounded-full bg-slate-100">
+                  <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${attendanceRateValue}%` }} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -342,6 +432,8 @@ const StudentDashboard = () => {
   );
 
   const renderSection = () => {
+    if (activeItem === 'overview') return renderOverview();
+
     if (activeItem === 'notices') {
       return (
         <section className="space-y-4">
@@ -672,7 +764,12 @@ const StudentDashboard = () => {
     return renderOverview();
   };
 
-  const headerTitle = activeItem === 'notices' ? 'Notices' : `Welcome back, ${displayName}`;
+  const headerTitle =
+    activeItem === 'notices'
+      ? 'Notices'
+      : activeItem === 'overview'
+      ? `Welcome back, ${displayName}`
+      : `Welcome back, ${displayName}`;
   const headerSubtitle =
     activeItem === 'notices'
       ? 'Latest announcements relevant to your courses.'
@@ -689,7 +786,7 @@ const StudentDashboard = () => {
       primaryItems={primaryItems}
       bottomItems={bottomItems}
       onNavigate={setActiveItem}
-      scrollable={false}
+      scrollable={true}
       headerTitle={headerTitle}
       headerSubtitle={headerSubtitle}
       primaryActionLabel={activeItem === 'notices' ? undefined : 'Upload Assignment'}

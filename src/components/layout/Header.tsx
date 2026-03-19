@@ -20,7 +20,6 @@ type HeaderProps = {
   subtitle: string;
   userName: string;
   initials: string;
-  notificationCount: number;
   onToggleTheme: () => void;
   darkMode: boolean;
   onOpenShortcuts: () => void;

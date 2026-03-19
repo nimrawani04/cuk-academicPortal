@@ -6,14 +6,21 @@ type StatsCardProps = {
   title: string;
   subtitle: string;
   value: number | string;
-  accentClass: string;
+  accentClass?: string;
 };
 
 export const StatsCard = ({ icon: Icon, title, subtitle, value, accentClass }: StatsCardProps) => {
+  const accentStyle = accentClass
+    ? undefined
+    : {
+        backgroundColor: 'hsl(var(--accent-hue), 80%, 92%)',
+        color: 'hsl(var(--accent-hue), 70%, 35%)',
+      };
+
   return (
     <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-5 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">
       <div className="flex min-w-0 items-center gap-3">
-        <div className={cn('rounded-lg p-3', accentClass)}>
+        <div className={cn('rounded-lg p-3', accentClass)} style={accentStyle}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">

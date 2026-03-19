@@ -17,6 +17,7 @@ type DashboardLayoutProps = {
   bottomItems: SidebarItem[];
   children: ReactNode;
   onNavigate?: (section: string) => void;
+  scrollable?: boolean;
 };
 
 export const DashboardLayout = ({
@@ -30,6 +31,7 @@ export const DashboardLayout = ({
   bottomItems,
   children,
   onNavigate,
+  scrollable = true,
 }: DashboardLayoutProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -52,8 +54,15 @@ export const DashboardLayout = ({
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    document.body.style.overflow = scrollable ? 'auto' : 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [scrollable]);
+
   return (
-    <div className={cn('h-dvh overflow-hidden bg-background text-foreground')}>
+    <div className={cn('app-shell h-dvh overflow-hidden text-foreground')}>
       <div className="flex h-full">
         <Sidebar
           collapsed={collapsed}
@@ -69,20 +78,21 @@ export const DashboardLayout = ({
           bottomItems={bottomItems}
         />
 
-        <main className="min-w-0 flex-1 overflow-y-auto">
+        <main className={cn('min-w-0 flex-1', scrollable ? 'overflow-y-auto' : 'overflow-hidden')}>
           <Header
             breadcrumb={['Dashboard', 'Overview']}
             subtitle="Stay updated with important announcements"
             userName={userName}
             initials={initials}
-            notificationCount={3}
             darkMode={darkMode}
             onToggleTheme={() => setDarkMode((prev) => !prev)}
             onOpenShortcuts={() => setShortcutsOpen(true)}
             onNavigate={onNavigate}
           />
 
-          <div className="px-5 py-6 lg:px-8 lg:py-8">{children}</div>
+          <div className={cn(scrollable ? 'px-5 py-6 lg:px-8 lg:py-8' : 'px-4 py-4 lg:px-6 lg:py-5')}>
+            {children}
+          </div>
         </main>
       </div>
 

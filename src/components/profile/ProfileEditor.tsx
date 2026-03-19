@@ -11,23 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { ACCENT_PRESETS } from '@/hooks/useAccentColor';
-
-const DEPARTMENTS = [
-  'Computer Science',
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'English',
-  'Economics',
-  'Management Studies',
-  'Education',
-  'Law',
-  'Journalism',
-];
+import { useDepartments } from '@/hooks/useDepartments';
 
 export function ProfileEditor() {
   const { user, userRole } = useAuth();
   const { data: profile, isLoading } = useProfile();
+  const { data: departments = [], isLoading: departmentsLoading } = useDepartments();
   const updateProfile = useUpdateProfile();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -150,7 +139,8 @@ export function ProfileEditor() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
+      <div className="space-y-4">
       {/* Avatar Section */}
       <Card>
         <CardHeader>
@@ -231,6 +221,7 @@ export function ProfileEditor() {
           </p>
         </CardContent>
       </Card>
+      </div>
 
       {/* Details Form */}
       <Card>
@@ -238,7 +229,7 @@ export function ProfileEditor() {
           <CardTitle className="text-lg">Personal Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSave} className="space-y-5">
+          <form onSubmit={handleSave} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label htmlFor="fullName">Full Name</Label>
@@ -266,12 +257,18 @@ export function ProfileEditor() {
                 <Label htmlFor="department">Department</Label>
                 <Select value={form.department} onValueChange={(v) => setForm((p) => ({ ...p, department: v }))}>
                   <SelectTrigger id="department">
-                    <SelectValue placeholder="Select department" />
+                    <SelectValue placeholder={departmentsLoading ? 'Loading departments...' : 'Select department'} />
                   </SelectTrigger>
                   <SelectContent>
-                    {DEPARTMENTS.map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
+                    {departments.length ? (
+                      departments.map((d) => (
+                        <SelectItem key={d} value={d}>{d}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="__none__" disabled>
+                        No departments available
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

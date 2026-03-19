@@ -209,10 +209,10 @@ const StudentDashboard = () => {
       <WelcomeSection name={displayName} />
 
       <section className="mb-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} accentClass="bg-[#e6efff] text-[#245ed4]" />
-        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} accentClass="bg-[#fde8f3] text-[#d42682]" />
-        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} accentClass="bg-[#e8f8ee] text-[#1f8c50]" />
-        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} accentClass="bg-[#f8eedf] text-[#f3a629]" />
+        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} />
+        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} />
+        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} />
+        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} />
       </section>
 
       <div className="grid gap-8 xl:grid-cols-[2fr_1fr]">
@@ -329,7 +329,7 @@ const StudentDashboard = () => {
               <div key={m.id} className="rounded-xl border border-slate-200 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[16px] font-semibold">{m.subjects?.name || 'Subject'}</p>
-                  <span className="rounded-full bg-[#e6efff] px-3 py-0.5 text-sm font-bold text-[#245ed4]">
+                  <span className="rounded-full bg-primary/10 px-3 py-0.5 text-sm font-bold text-primary">
                     {m.grade || '-'}
                   </span>
                 </div>
@@ -342,9 +342,9 @@ const StudentDashboard = () => {
                     { label: 'Attendance', value: m.attendance_marks, max: 5 },
                     { label: 'Total', value: m.total_marks, max: 100 },
                   ].map((item) => (
-                    <div key={item.label} className={`rounded-lg p-2.5 text-center ${item.label === 'Total' ? 'bg-[#245ed4]/10' : 'bg-slate-50'}`}>
+                    <div key={item.label} className={`rounded-lg p-2.5 text-center ${item.label === 'Total' ? 'bg-primary/10' : 'bg-slate-50'}`}>
                       <p className="text-xs text-slate-500 mb-0.5">{item.label}</p>
-                      <p className={`text-lg font-bold ${item.label === 'Total' ? 'text-[#245ed4]' : 'text-slate-800'}`}>
+                      <p className={`text-lg font-bold ${item.label === 'Total' ? 'text-primary' : 'text-slate-800'}`}>
                         {item.value ?? '-'}
                       </p>
                       <p className="text-[10px] text-slate-400">/ {item.max}</p>
@@ -379,7 +379,7 @@ const StudentDashboard = () => {
                 <p className="font-semibold">{r.title}</p>
                 <p className="text-sm text-slate-500">{r.subjects?.name || 'General'} · {r.resource_type}</p>
                 {r.file_url ? (
-                  <a className="mt-1 inline-block text-xs font-semibold text-[#245ed4] hover:underline" href={r.file_url} target="_blank" rel="noreferrer">
+                  <a className="mt-1 inline-block text-xs font-semibold text-primary hover:underline" href={r.file_url} target="_blank" rel="noreferrer">
                     Open Resource
                   </a>
                 ) : null}
@@ -539,6 +539,7 @@ const StudentDashboard = () => {
       primaryItems={primaryItems}
       bottomItems={bottomItems}
       onNavigate={setActiveItem}
+      scrollable={false}
     >
       {renderSection()}
     </DashboardLayout>

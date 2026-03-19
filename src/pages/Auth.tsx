@@ -8,17 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Moon, Sun } from 'lucide-react';
+import { useDepartments } from '@/hooks/useDepartments';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState<'student' | 'teacher' | ''>('');
+  const [department, setDepartment] = useState('');
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('auth_theme') === 'dark');
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const { data: departments = [], isLoading: departmentsLoading } = useDepartments();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -92,6 +95,14 @@ const Auth = () => {
       });
       return;
     }
+    if (!department) {
+      toast({
+        title: 'Department required',
+        description: 'Please select your department.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setLoading(true);
 
@@ -103,6 +114,7 @@ const Auth = () => {
           data: {
             full_name: fullName,
             role,
+            department,
           },
           emailRedirectTo: `${window.location.origin}/`,
         },
@@ -266,6 +278,25 @@ const Auth = () => {
                       <SelectContent>
                         <SelectItem value="student">Student</SelectItem>
                         <SelectItem value="teacher">Teacher</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Department</Label>
+                    <Select value={department} onValueChange={setDepartment}>
+                      <SelectTrigger className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}>
+                        <SelectValue placeholder={departmentsLoading ? 'Loading departments...' : 'Select department'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.length ? (
+                          departments.map((d) => (
+                            <SelectItem key={d} value={d}>{d}</SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="__none__" disabled>
+                            No departments available
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>

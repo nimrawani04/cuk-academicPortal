@@ -206,7 +206,7 @@ const StudentDashboard = () => {
 
   const renderOverview = () => (
     <>
-      <WelcomeSection name={displayName} />
+      <WelcomeSection name={displayName} onUploadAssignment={() => setActiveItem('assignments')} />
 
       <section className="mb-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} colorIndex={0} />

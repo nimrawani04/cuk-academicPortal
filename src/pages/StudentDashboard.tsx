@@ -209,10 +209,10 @@ const StudentDashboard = () => {
       <WelcomeSection name={displayName} />
 
       <section className="mb-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} accentClass="bg-[#e6efff] text-[#245ed4]" />
-        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} accentClass="bg-[#fde8f3] text-[#d42682]" />
-        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} accentClass="bg-[#e8f8ee] text-[#1f8c50]" />
-        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} accentClass="bg-[#f8eedf] text-[#f3a629]" />
+        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} colorIndex={0} />
+        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} colorIndex={1} />
+        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} colorIndex={2} />
+        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} colorIndex={3} />
       </section>
 
       <div className="grid gap-8 xl:grid-cols-[2fr_1fr]">

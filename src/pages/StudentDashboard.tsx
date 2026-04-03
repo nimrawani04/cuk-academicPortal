@@ -229,8 +229,8 @@ const StudentDashboard = () => {
 
   const sectionShell = (title: string, content: ReactNode) => (
     <section>
-      <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">{title}</h2>
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">{content}</div>
+      <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">{title}</h2>
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">{content}</div>
     </section>
   );
 

@@ -206,13 +206,13 @@ const StudentDashboard = () => {
 
   const renderOverview = () => (
     <>
-      <WelcomeSection name={displayName} />
+      <WelcomeSection name={displayName} onUploadAssignment={() => setActiveItem('assignments')} />
 
       <section className="mb-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} accentClass="bg-[#e6efff] text-[#245ed4]" />
-        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} accentClass="bg-[#fde8f3] text-[#d42682]" />
-        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} accentClass="bg-[#e8f8ee] text-[#1f8c50]" />
-        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} accentClass="bg-[#f8eedf] text-[#f3a629]" />
+        <StatsCard icon={BookOpen} title="Enrolled Courses" subtitle="This semester" value={enrollments.length} colorIndex={0} />
+        <StatsCard icon={ClipboardList} title="Assignments Pending" subtitle="This semester" value={pendingAssignments.length} colorIndex={1} />
+        <StatsCard icon={FolderOpen} title="Average Marks" subtitle="Current score" value={averageMarks} colorIndex={2} />
+        <StatsCard icon={Calendar} title="Upcoming Deadlines" subtitle="Next 14 days" value={upcomingDeadlines.length} colorIndex={3} />
       </section>
 
       <div className="grid gap-8 xl:grid-cols-[2fr_1fr]">
@@ -229,8 +229,8 @@ const StudentDashboard = () => {
 
   const sectionShell = (title: string, content: ReactNode) => (
     <section>
-      <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">{title}</h2>
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">{content}</div>
+      <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">{title}</h2>
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">{content}</div>
     </section>
   );
 
@@ -243,14 +243,14 @@ const StudentDashboard = () => {
         enrollments.length ? (
           <div className="space-y-3">
             {enrollments.map((en: any) => (
-              <div key={en.id} className="rounded-lg border border-slate-200 px-4 py-3">
+              <div key={en.id} className="rounded-lg border border-border px-4 py-3">
                 <p className="text-[16px] font-semibold">{en.subjects?.name || 'Subject'}</p>
-                <p className="text-sm text-slate-500">{en.subjects?.code} · Semester {en.subjects?.semester} · {en.classes?.name || 'Class'}</p>
+                <p className="text-sm text-muted-foreground">{en.subjects?.code} · Semester {en.subjects?.semester} · {en.classes?.name || 'Class'}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">You are not enrolled in any courses yet.</p>
+          <p className="text-sm text-muted-foreground">You are not enrolled in any courses yet.</p>
         )
       );
     }
@@ -271,8 +271,8 @@ const StudentDashboard = () => {
                     isToday
                       ? 'border-primary/40 bg-primary/5'
                       : isPast
-                      ? 'border-slate-100 bg-slate-50 opacity-60'
-                      : 'border-slate-200 bg-white'
+                      ? 'border-border bg-muted opacity-60'
+                      : 'border-border bg-card'
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
@@ -326,10 +326,10 @@ const StudentDashboard = () => {
         marks.length ? (
           <div className="space-y-4">
             {marks.map((m: any) => (
-              <div key={m.id} className="rounded-xl border border-slate-200 p-4">
+              <div key={m.id} className="rounded-xl border border-border p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[16px] font-semibold">{m.subjects?.name || 'Subject'}</p>
-                  <span className="rounded-full bg-[#e6efff] px-3 py-0.5 text-sm font-bold text-[#245ed4]">
+                  <span className="rounded-full bg-primary/10 px-3 py-0.5 text-sm font-bold text-primary">
                     {m.grade || '-'}
                   </span>
                 </div>
@@ -342,12 +342,12 @@ const StudentDashboard = () => {
                     { label: 'Attendance', value: m.attendance_marks, max: 5 },
                     { label: 'Total', value: m.total_marks, max: 100 },
                   ].map((item) => (
-                    <div key={item.label} className={`rounded-lg p-2.5 text-center ${item.label === 'Total' ? 'bg-[#245ed4]/10' : 'bg-slate-50'}`}>
-                      <p className="text-xs text-slate-500 mb-0.5">{item.label}</p>
-                      <p className={`text-lg font-bold ${item.label === 'Total' ? 'text-[#245ed4]' : 'text-slate-800'}`}>
+                    <div key={item.label} className={`rounded-lg p-2.5 text-center ${item.label === 'Total' ? 'bg-primary/10' : 'bg-muted'}`}>
+                      <p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
+                      <p className={`text-lg font-bold ${item.label === 'Total' ? 'text-primary' : 'text-foreground'}`}>
                         {item.value ?? '-'}
                       </p>
-                      <p className="text-[10px] text-slate-400">/ {item.max}</p>
+                      <p className="text-[10px] text-muted-foreground/70">/ {item.max}</p>
                     </div>
                   ))}
                 </div>
@@ -355,7 +355,7 @@ const StudentDashboard = () => {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">No marks published yet.</p>
+          <p className="text-sm text-muted-foreground">No marks published yet.</p>
         )
       );
     }
@@ -363,7 +363,7 @@ const StudentDashboard = () => {
     if (activeItem === 'performance') {
       return (
         <section>
-          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Performance Overview</h2>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">Performance Overview</h2>
           <PerformanceCharts marks={marks as any} attendance={attendance as any} />
         </section>
       );
@@ -375,11 +375,11 @@ const StudentDashboard = () => {
         resources.length ? (
           <div className="space-y-3">
             {resources.slice(0, 20).map((r: any) => (
-              <div key={r.id} className="rounded-lg border border-slate-200 px-4 py-3">
+              <div key={r.id} className="rounded-lg border border-border px-4 py-3">
                 <p className="font-semibold">{r.title}</p>
-                <p className="text-sm text-slate-500">{r.subjects?.name || 'General'} · {r.resource_type}</p>
+                <p className="text-sm text-muted-foreground">{r.subjects?.name || 'General'} · {r.resource_type}</p>
                 {r.file_url ? (
-                  <a className="mt-1 inline-block text-xs font-semibold text-[#245ed4] hover:underline" href={r.file_url} target="_blank" rel="noreferrer">
+                  <a className="mt-1 inline-block text-xs font-semibold text-primary hover:underline" href={r.file_url} target="_blank" rel="noreferrer">
                     Open Resource
                   </a>
                 ) : null}
@@ -387,7 +387,7 @@ const StudentDashboard = () => {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">No resources available.</p>
+          <p className="text-sm text-muted-foreground">No resources available.</p>
         )
       );
     }
@@ -400,12 +400,12 @@ const StudentDashboard = () => {
             {studentAssignments.map((a: any) => {
               const submitted = submittedSet.has(a.id);
               return (
-                <div key={a.id} className="rounded-lg border border-slate-200 px-4 py-3">
+                <div key={a.id} className="rounded-lg border border-border px-4 py-3">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold">{a.title}</p>
-                    <p className={`text-xs font-semibold ${submitted ? 'text-[#1f8c50]' : 'text-[#d42682]'}`}>{submitted ? 'Submitted' : 'Pending'}</p>
+                    <p className={`text-xs font-semibold ${submitted ? 'text-emerald-600' : 'text-destructive'}`}>{submitted ? 'Submitted' : 'Pending'}</p>
                   </div>
-                  <p className="text-sm text-slate-500">Due: {new Date(a.due_date).toLocaleDateString()}</p>
+                  <p className="text-sm text-muted-foreground">Due: {new Date(a.due_date).toLocaleDateString()}</p>
                   {!submitted && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Input
@@ -433,7 +433,7 @@ const StudentDashboard = () => {
             })}
           </div>
         ) : (
-          <p className="text-sm text-slate-500">No assignments available.</p>
+          <p className="text-sm text-muted-foreground">No assignments available.</p>
         )
       );
     }
@@ -443,23 +443,23 @@ const StudentDashboard = () => {
         'Library',
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="mb-2 text-sm font-semibold text-slate-700">Issued Books</p>
+            <p className="mb-2 text-sm font-semibold text-foreground/80">Issued Books</p>
             {issues.length ? (
               <ul className="space-y-2">
                 {issues.map((issue: any) => (
-                  <li key={issue.id} className="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                  <li key={issue.id} className="rounded-lg border border-border px-3 py-2 text-sm">
                     {issue.library_books?.title || 'Book'} ({issue.status})
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-slate-500">No books issued.</p>
+              <p className="text-sm text-muted-foreground">No books issued.</p>
             )}
           </div>
           <div>
-            <p className="mb-2 text-sm font-semibold text-slate-700">Available Books</p>
+            <p className="mb-2 text-sm font-semibold text-foreground/80">Available Books</p>
             <p className="text-3xl font-semibold">{books.filter((b: any) => b.available_copies > 0).length}</p>
-            <p className="text-sm text-slate-500">out of {books.length} total titles</p>
+            <p className="text-sm text-muted-foreground">out of {books.length} total titles</p>
           </div>
         </div>
       );
@@ -469,8 +469,8 @@ const StudentDashboard = () => {
       return sectionShell(
         'Leave Management',
         <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-          <form onSubmit={handleLeaveSubmit} className="space-y-3 rounded-lg border border-slate-200 p-4">
-            <h3 className="text-sm font-semibold text-slate-700">Apply for Leave</h3>
+          <form onSubmit={handleLeaveSubmit} className="space-y-3 rounded-lg border border-border p-4">
+            <h3 className="text-sm font-semibold text-foreground/80">Apply for Leave</h3>
             <div className="space-y-1.5">
               <Label>Leave Type</Label>
               <Input value={leaveForm.leaveType} onChange={(e) => setLeaveForm((p) => ({ ...p, leaveType: e.target.value }))} placeholder="Medical / Personal" />
@@ -496,20 +496,20 @@ const StudentDashboard = () => {
             <Button type="submit" disabled={createLeave.isPending}>Submit Leave Request</Button>
           </form>
 
-          <div className="space-y-3 rounded-lg border border-slate-200 p-4">
-            <h3 className="text-sm font-semibold text-slate-700">Leave History</h3>
+          <div className="space-y-3 rounded-lg border border-border p-4">
+            <h3 className="text-sm font-semibold text-foreground/80">Leave History</h3>
             {leaves.length ? (
               leaves.map((l: any) => (
-                <div key={l.id} className="rounded-lg border border-slate-200 px-3 py-2">
+                <div key={l.id} className="rounded-lg border border-border px-3 py-2">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold">{l.leave_type}</p>
-                    <p className="text-xs font-semibold uppercase text-slate-600">{l.status}</p>
+                    <p className="text-xs font-semibold uppercase text-muted-foreground">{l.status}</p>
                   </div>
-                  <p className="text-xs text-slate-500">{l.from_date} to {l.to_date}</p>
+                  <p className="text-xs text-muted-foreground">{l.from_date} to {l.to_date}</p>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-slate-500">No leave applications submitted yet.</p>
+              <p className="text-sm text-muted-foreground">No leave applications submitted yet.</p>
             )}
           </div>
         </div>
@@ -519,7 +519,7 @@ const StudentDashboard = () => {
     if (activeItem === 'profile') {
       return (
         <section>
-          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">Profile Management</h2>
           <ProfileEditor />
         </section>
       );

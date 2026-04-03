@@ -1,4 +1,4 @@
-﻿import { Clock3, Upload, GraduationCap, Mail } from 'lucide-react';
+import { Clock3, Upload, GraduationCap, Mail } from 'lucide-react';
 
 type QuickActionsProps = {
   deadlines: string[];
@@ -11,44 +11,44 @@ export const QuickActions = ({ deadlines, onUploadAssignment, onViewMarks, onCon
   return (
     <section className="space-y-10">
       <div>
-        <h2 className="mb-4 text-[22px] font-semibold tracking-tight">Upcoming Deadlines</h2>
-        <div className="rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-[0_2px_6px_rgba(15,23,42,0.05)]">
+        <h2 className="mb-4 text-[22px] font-semibold tracking-tight text-foreground">Upcoming Deadlines</h2>
+        <div className="rounded-xl border border-border bg-card px-5 py-4 shadow-sm">
           {deadlines.length ? (
-            <ul className="space-y-3 text-sm text-slate-700">
+            <ul className="space-y-3 text-sm text-foreground">
               {deadlines.map((d) => (
                 <li key={d} className="flex items-center gap-2">
-                  <Clock3 className="h-4 w-4 text-[#e33f96]" />
+                  <Clock3 className="h-4 w-4 text-primary" />
                   {d}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-slate-500">No upcoming deadlines yet.</p>
+            <p className="text-sm text-muted-foreground">No upcoming deadlines yet.</p>
           )}
         </div>
       </div>
 
       <div>
-        <h2 className="mb-4 text-[22px] font-semibold tracking-tight">Quick Actions</h2>
-        <div className="rounded-xl border border-slate-200 bg-transparent px-1">
-          <button onClick={onUploadAssignment} className="flex w-full items-center border-b border-slate-200 py-4 text-left text-[16px] font-semibold text-slate-800 hover:text-[#cf2d82]">
-            <Upload className="mr-3 h-4 w-4 text-[#e33f96]" />
+        <h2 className="mb-4 text-[22px] font-semibold tracking-tight text-foreground">Quick Actions</h2>
+        <div className="rounded-xl border border-border bg-transparent px-1">
+          <button onClick={onUploadAssignment} className="flex w-full items-center border-b border-border py-4 text-left text-[16px] font-semibold text-foreground hover:text-primary">
+            <Upload className="mr-3 h-4 w-4 text-primary" />
             Upload Assignment
           </button>
-          <button onClick={onViewMarks} className="flex w-full items-center border-b border-slate-200 py-4 text-left text-[16px] font-semibold text-slate-800 hover:text-[#cf2d82]">
-            <GraduationCap className="mr-3 h-4 w-4 text-[#e33f96]" />
+          <button onClick={onViewMarks} className="flex w-full items-center border-b border-border py-4 text-left text-[16px] font-semibold text-foreground hover:text-primary">
+            <GraduationCap className="mr-3 h-4 w-4 text-primary" />
             View Marks
           </button>
-          <button onClick={onContactFaculty} className="flex w-full items-center py-4 text-left text-[16px] font-semibold text-slate-800 hover:text-[#cf2d82]">
-            <Mail className="mr-3 h-4 w-4 text-[#e33f96]" />
+          <button onClick={onContactFaculty} className="flex w-full items-center py-4 text-left text-[16px] font-semibold text-foreground hover:text-primary">
+            <Mail className="mr-3 h-4 w-4 text-primary" />
             Contact Faculty
           </button>
         </div>
       </div>
 
-      <div className="rounded-xl border border-[#f0c6dd] bg-[#f8deeb] px-5 py-4">
-        <p className="text-[22px] font-semibold text-[#cf2d82]">Pro Tip</p>
-        <p className="mt-1 text-[14px] text-[#b24882]">Complete assignments early to improve consistency.</p>
+      <div className="rounded-xl border border-primary/20 bg-primary/5 px-5 py-4">
+        <p className="text-[22px] font-semibold text-primary">Pro Tip</p>
+        <p className="mt-1 text-[14px] text-primary/70">Complete assignments early to improve consistency.</p>
       </div>
     </section>
   );

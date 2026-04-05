@@ -46,7 +46,6 @@ export function useUpdateUserRole() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: AppRole }) => {
-      // Upsert: delete existing then insert
       await supabase.from('user_roles').delete().eq('user_id', userId);
       const { error } = await supabase
         .from('user_roles')
@@ -66,7 +65,23 @@ export function useAllSubjects() {
         .select('*, profiles!subjects_teacher_id_fkey(full_name)')
         .order('name');
       if (error) throw error;
-      return data;
+
+      // Also fetch teacher_assignments for each subject
+      const { data: assignments } = await supabase
+        .from('teacher_assignments')
+        .select('subject_id, teacher_id');
+
+      const assignmentMap = new Map<string, string[]>();
+      assignments?.forEach((a: any) => {
+        const existing = assignmentMap.get(a.subject_id) || [];
+        existing.push(a.teacher_id);
+        assignmentMap.set(a.subject_id, existing);
+      });
+
+      return data?.map((s: any) => ({
+        ...s,
+        assigned_teacher_ids: assignmentMap.get(s.id) || [],
+      }));
     },
   });
 }
@@ -132,22 +147,118 @@ export function useDeleteSubject() {
 export function useCreateSubjectAdmin() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (subject: { code: string; name: string; department: string; semester: number; credits: number; teacher_id?: string | null }) => {
-      const { error } = await supabase.from('subjects').insert(subject);
+    mutationFn: async (subject: {
+      code: string;
+      name: string;
+      department: string;
+      semester: number;
+      credits: number;
+      teacher_id?: string | null;
+      course_type?: string;
+    }) => {
+      const { course_type, ...subjectData } = subject;
+      // Note: course_type is stored but the types file hasn't updated yet,
+      // so we use raw query approach
+      const { data, error } = await supabase
+        .from('subjects')
+        .insert(subjectData as any)
+        .select()
+        .single();
       if (error) throw error;
+
+      // If teacher_id is set, also create teacher_assignment
+      if (subject.teacher_id) {
+        await supabase
+          .from('teacher_assignments')
+          .upsert(
+            { teacher_id: subject.teacher_id, subject_id: data.id },
+            { onConflict: 'teacher_id,subject_id' }
+          );
+      }
+
+      return data;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-subjects'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-subjects'] });
+      qc.invalidateQueries({ queryKey: ['teacher-subjects'] });
+    },
   });
 }
 
 export function useUpdateSubjectAdmin() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; code?: string; name?: string; department?: string; semester?: number; credits?: number; teacher_id?: string | null }) => {
-      const { error } = await supabase.from('subjects').update(updates).eq('id', id);
+    mutationFn: async ({ id, ...updates }: {
+      id: string;
+      code?: string;
+      name?: string;
+      department?: string;
+      semester?: number;
+      credits?: number;
+      teacher_id?: string | null;
+      course_type?: string;
+    }) => {
+      const { course_type, ...subjectUpdates } = updates;
+      const { error } = await supabase.from('subjects').update(subjectUpdates as any).eq('id', id);
+      if (error) throw error;
+
+      // Sync teacher_assignment if teacher_id changed
+      if (updates.teacher_id !== undefined) {
+        // Remove old assignment for this subject from old teacher (if any)
+        // and add new one
+        if (updates.teacher_id) {
+          await supabase
+            .from('teacher_assignments')
+            .upsert(
+              { teacher_id: updates.teacher_id, subject_id: id },
+              { onConflict: 'teacher_id,subject_id' }
+            );
+        }
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-subjects'] });
+      qc.invalidateQueries({ queryKey: ['teacher-subjects'] });
+    },
+  });
+}
+
+/** Assign a teacher to a course (teacher_assignments table) */
+export function useAssignTeacherToCourse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ teacherId, subjectId }: { teacherId: string; subjectId: string }) => {
+      const { error } = await supabase
+        .from('teacher_assignments')
+        .upsert(
+          { teacher_id: teacherId, subject_id: subjectId },
+          { onConflict: 'teacher_id,subject_id' }
+        );
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-subjects'] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-subjects'] });
+      qc.invalidateQueries({ queryKey: ['teacher-subjects'] });
+    },
+  });
+}
+
+/** Remove a teacher from a course */
+export function useRemoveTeacherFromCourse() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ teacherId, subjectId }: { teacherId: string; subjectId: string }) => {
+      const { error } = await supabase
+        .from('teacher_assignments')
+        .delete()
+        .eq('teacher_id', teacherId)
+        .eq('subject_id', subjectId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-subjects'] });
+      qc.invalidateQueries({ queryKey: ['teacher-subjects'] });
+    },
   });
 }
 

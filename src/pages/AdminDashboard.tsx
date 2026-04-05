@@ -64,7 +64,7 @@ const AdminDashboard = () => {
       case 'profile':
         return (
           <section>
-            <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-slate-900">Profile Management</h2>
+            <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">Profile Management</h2>
             <ProfileEditor />
           </section>
         );

@@ -20,6 +20,10 @@ export function useSubjects() {
   });
 }
 
+/**
+ * Fetch subjects assigned to the current teacher via teacher_assignments table.
+ * Falls back to subjects.teacher_id for backward compatibility.
+ */
 export function useTeacherSubjects() {
   const { user } = useAuth();
 
@@ -27,12 +31,38 @@ export function useTeacherSubjects() {
     queryKey: ['teacher-subjects', user?.id],
     queryFn: async () => {
       if (!user) return [];
+
+      // Get subject IDs from teacher_assignments
+      const { data: assignments, error: assignError } = await supabase
+        .from('teacher_assignments')
+        .select('subject_id')
+        .eq('teacher_id', user.id);
+
+      if (assignError) throw assignError;
+
+      const assignedIds = assignments?.map((a: any) => a.subject_id) || [];
+
+      // Also get legacy subjects.teacher_id
+      const { data: legacySubjects, error: legacyError } = await supabase
+        .from('subjects')
+        .select('id')
+        .eq('teacher_id', user.id);
+
+      if (legacyError) throw legacyError;
+
+      const legacyIds = legacySubjects?.map((s: any) => s.id) || [];
+
+      // Merge unique IDs
+      const allIds = [...new Set([...assignedIds, ...legacyIds])];
+
+      if (allIds.length === 0) return [] as Subject[];
+
       const { data, error } = await supabase
         .from('subjects')
         .select('*')
-        .eq('teacher_id', user.id)
+        .in('id', allIds)
         .order('name');
-      
+
       if (error) throw error;
       return data as Subject[];
     },
@@ -54,6 +84,12 @@ export function useCreateSubject() {
         .single();
       
       if (error) throw error;
+
+      // Also create teacher_assignment
+      await supabase
+        .from('teacher_assignments')
+        .upsert({ teacher_id: user.id, subject_id: data.id }, { onConflict: 'teacher_id,subject_id' });
+
       return data;
     },
     onSuccess: () => {

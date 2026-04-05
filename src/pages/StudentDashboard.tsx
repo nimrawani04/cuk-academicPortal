@@ -36,6 +36,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useUpcomingExams } from '@/hooks/useExams';
 import { PerformanceCharts } from '@/components/student/PerformanceCharts';
 import { ProfileEditor } from '@/components/profile/ProfileEditor';
+import { CourseEnrollment } from '@/components/student/CourseEnrollment';
 
 const StudentDashboard = () => {
   const { user, userRole, signOut } = useAuth();
@@ -134,6 +135,7 @@ const StudentDashboard = () => {
   const primaryItems = useMemo<SidebarItem[]>(
     () => [
       { id: 'notices', label: 'Notices', icon: Bell, section: 'Dashboard', onClick: () => setActiveItem('notices') },
+      { id: 'enrollment', label: 'Enrollment', icon: GraduationCap, section: 'Dashboard', onClick: () => setActiveItem('enrollment') },
       { id: 'courses', label: 'My Courses', icon: BookOpen, section: 'Dashboard', onClick: () => setActiveItem('courses') },
       { id: 'exams', label: 'Exams', icon: Calendar, section: 'Dashboard', onClick: () => setActiveItem('exams') },
       { id: 'marks', label: 'Marks', icon: GraduationCap, section: 'Dashboard', onClick: () => setActiveItem('marks') },
@@ -236,6 +238,15 @@ const StudentDashboard = () => {
 
   const renderSection = () => {
     if (activeItem === 'notices') return renderOverview();
+
+    if (activeItem === 'enrollment') {
+      return (
+        <section>
+          <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-foreground">Course Enrollment</h2>
+          <CourseEnrollment />
+        </section>
+      );
+    }
 
     if (activeItem === 'courses') {
       return sectionShell(

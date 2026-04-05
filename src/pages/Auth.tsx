@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun } from 'lucide-react';
+import { Eye, EyeOff, Moon, Sun } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -19,6 +19,7 @@ const Auth = () => {
   const [showForgot, setShowForgot] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -129,6 +130,30 @@ const Auth = () => {
     }
   };
 
+  const PasswordInput = ({ id, placeholder, className }: { id: string; placeholder: string; className: string }) => (
+    <div className="relative">
+      <Input
+        id={id}
+        type={showPassword ? 'text' : 'password'}
+        placeholder={placeholder}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        minLength={id.includes('signup') ? 6 : undefined}
+        className={`${className} pr-10`}
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword((p) => !p)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+        tabIndex={-1}
+        aria-label={showPassword ? 'Hide password' : 'Show password'}
+      >
+        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+
   return (
     <div className={darkMode ? 'min-h-screen bg-[#1f2430] lg:h-screen lg:overflow-hidden' : 'min-h-screen bg-[#efeff1] lg:h-screen lg:overflow-hidden'}>
       <div className="grid min-h-screen lg:h-full lg:grid-cols-[2fr_1fr]">
@@ -193,13 +218,9 @@ const Auth = () => {
                     >
                       Password
                     </Label>
-                    <Input
+                    <PasswordInput
                       id="signin-password"
-                      type="password"
                       placeholder="Credentials"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
                       className={darkMode ? 'h-11 border-slate-600 bg-slate-800 text-slate-100' : 'h-11 border-slate-300'}
                     />
                   </div>
@@ -246,14 +267,9 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="signup-password"
-                      type="password"
                       placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
                       className={darkMode ? 'h-10 border-slate-600 bg-slate-800 text-slate-100' : 'h-10'}
                     />
                   </div>
@@ -282,7 +298,6 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Forgot Password Modal */}
           {showForgot && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
               <div className={darkMode ? 'w-full max-w-sm rounded-xl border border-slate-700 bg-[#2b3140] p-6 shadow-xl' : 'w-full max-w-sm rounded-xl border bg-white p-6 shadow-xl'}>

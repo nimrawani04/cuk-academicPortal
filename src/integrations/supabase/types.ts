@@ -729,6 +729,7 @@ export type Database = {
       subjects: {
         Row: {
           code: string
+          course_type: Database["public"]["Enums"]["course_type"]
           created_at: string
           credits: number
           department: string
@@ -739,6 +740,7 @@ export type Database = {
         }
         Insert: {
           code: string
+          course_type?: Database["public"]["Enums"]["course_type"]
           created_at?: string
           credits: number
           department: string
@@ -749,6 +751,7 @@ export type Database = {
         }
         Update: {
           code?: string
+          course_type?: Database["public"]["Enums"]["course_type"]
           created_at?: string
           credits?: number
           department?: string
@@ -764,6 +767,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      teacher_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          subject_id: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          subject_id: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          subject_id?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_assignments_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -813,6 +845,7 @@ export type Database = {
     Enums: {
       app_role: "student" | "teacher" | "admin"
       attendance_status: "present" | "absent" | "late" | "on_leave"
+      course_type: "core" | "elective"
       leave_status: "pending" | "approved" | "rejected"
       priority_level: "normal" | "important" | "urgent"
       resource_type:
@@ -950,6 +983,7 @@ export const Constants = {
     Enums: {
       app_role: ["student", "teacher", "admin"],
       attendance_status: ["present", "absent", "late", "on_leave"],
+      course_type: ["core", "elective"],
       leave_status: ["pending", "approved", "rejected"],
       priority_level: ["normal", "important", "urgent"],
       resource_type: [
